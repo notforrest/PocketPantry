@@ -13,6 +13,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="receipt-parser/index"
         options={{
+          headerTitle: "Receipt Parser",
           title: "Parser",
         }}
       />
