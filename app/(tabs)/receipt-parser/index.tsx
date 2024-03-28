@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   Button,
   Keyboard,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -13,22 +14,42 @@ export default function Parser() {
   const [text, setText] = useState("");
   const [output, setOutput] = useState("");
 
+  const parseHEBReceipt = (text: string) => {
+    // RegExp to match 1-2 digits followed by whitespace followed by any characters except "Ea."
+    const regex = /(^\d{1,2})\s+((?!Ea\.).*)/gm;
+    const matches = [...text.matchAll(regex)];
+
+    // Maps the matches to an array to print name
+    const items = matches
+      .map((item, index) => {
+        const [, , name] = item;
+        return `${index + 1}) ${name}`;
+      })
+      .join("\n");
+    return items;
+  };
+
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
-        <Text style={styles.header}>Paste text from a receipt</Text>
-        <TextInput
-          multiline
-          numberOfLines={4}
-          onEndEditing={(e) => setText(e.nativeEvent.text)}
-          placeholder="Enter text"
-          returnKeyType="done"
-          style={styles.text}
-        />
-        <Button title="Parse" onPress={() => setOutput(text)} />
-        <Text style={styles.output}>{output}</Text>
-      </View>
-    </TouchableWithoutFeedback>
+    <ScrollView>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.container}>
+          <Text style={styles.header}>Paste text from a receipt</Text>
+          <TextInput
+            multiline
+            numberOfLines={4}
+            onEndEditing={(e) => setText(e.nativeEvent.text)}
+            placeholder="Enter text"
+            returnKeyType="done"
+            style={styles.text}
+          />
+          <Button
+            title="Parse"
+            onPress={() => setOutput(parseHEBReceipt(text))}
+          />
+          <Text style={styles.output}>{output}</Text>
+        </View>
+      </TouchableWithoutFeedback>
+    </ScrollView>
   );
 }
 
