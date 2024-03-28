@@ -30,6 +30,13 @@ export default function TabLayout() {
           },
         }}
       />
+      <Tabs.Screen
+        name="receipt-parser/receipt-parser-old"
+        options={{
+          headerTitle: "Receipt Parser",
+          title: "OLD",
+        }}
+      />
     </Tabs>
   );
 }
