@@ -100,7 +100,7 @@ export default function Scanner() {
 
     setCapturedImage(photo.uri);
 
-    const apiKey = 'AIzaSyAI_u8448rhBOT9y6t_R1IILhZqT8KZ3IU'; // Replace with your API key
+    const apiKey = 'API KEY'; // Replace with your API key
     const endpoint = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
     const base64Image = await convertImageToBase64(photo.uri);
 
