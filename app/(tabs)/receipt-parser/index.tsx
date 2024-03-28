@@ -68,27 +68,34 @@
 //   output: {},
 // });
 
-
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, TextInput, ScrollView, TouchableWithoutFeedback, Keyboard, Dimensions } from 'react-native';
-import { Button } from 'react-native-elements';
-import { Camera, CameraType } from 'expo-camera';
-import * as ImageManipulator from 'expo-image-manipulator';
+import { Camera, CameraType } from "expo-camera";
+import * as ImageManipulator from "expo-image-manipulator";
+import React, { useState, useEffect } from "react";
+import {
+  Text,
+  View,
+  Image,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Dimensions,
+} from "react-native";
+import { Button } from "react-native-elements";
 
 export default function Scanner() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [detectedText, setDetectedText] = useState<string>('');
-  const [recipe, setRecipe] = useState<string>('');
+  const [detectedText, setDetectedText] = useState<string>("");
+  const [recipe, setRecipe] = useState<string>("");
 
-  const { width, height } = Dimensions.get('window');
+  const { width, height } = Dimensions.get("window");
 
-  const [output, setOutput] = useState<string>('');
+  const [output, setOutput] = useState<string>("");
 
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
+      setHasPermission(status === "granted");
     })();
   }, []);
 
@@ -96,16 +103,18 @@ export default function Scanner() {
     if (!camera) return;
 
     let photo = await camera.takePictureAsync();
-    photo = await ImageManipulator.manipulateAsync(photo.uri, [], { compress: 0.5 });
+    photo = await ImageManipulator.manipulateAsync(photo.uri, [], {
+      compress: 0.5,
+    });
 
     setCapturedImage(photo.uri);
 
-    const apiKey = 'API KEY'; // Replace with your API key
+    const apiKey = "API KEY"; // Replace with your API key
     const endpoint = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
     const base64Image = await convertImageToBase64(photo.uri);
 
     fetch(endpoint, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify({
         requests: [
           {
@@ -114,7 +123,7 @@ export default function Scanner() {
             },
             features: [
               {
-                type: 'TEXT_DETECTION',
+                type: "TEXT_DETECTION",
               },
             ],
           },
@@ -128,11 +137,11 @@ export default function Scanner() {
           setDetectedText(annotations[0].description);
           setOutput(parseHEBReceipt(annotations[0].description)); // Parse the detected text
         } else {
-          setDetectedText('No text detected');
-          setOutput('');
+          setDetectedText("No text detected");
+          setOutput("");
         }
       })
-      .catch((error) => console.error('Error:', error));
+      .catch((error) => console.error("Error:", error));
   };
 
   const convertImageToBase64 = async (imageUri: string) => {
@@ -149,13 +158,13 @@ export default function Scanner() {
       reader.onload = () => {
         const result: string | null = reader.result as string;
         if (result) {
-          const [, base64Data] = result.split(',');
+          const [, base64Data] = result.split(",");
           resolve(base64Data);
         } else {
-          reject(new Error('Failed to read file as base64.'));
+          reject(new Error("Failed to read file as base64."));
         }
       };
-      
+
       reader.readAsDataURL(blob);
     });
   };
@@ -202,13 +211,12 @@ export default function Scanner() {
         8. Bake in preheated oven for 45 to 50 minutes, or until crust is golden brown and filling is bubbly.
         9. Cool on a wire rack before serving. Enjoy!
       `;
-  
+
       setRecipe(applePieRecipe);
     } catch (error) {
-      console.error('Error generating recipe:', error);
+      console.error("Error generating recipe:", error);
     }
   };
-  
 
   if (hasPermission === null) {
     return <View />;
@@ -222,7 +230,7 @@ export default function Scanner() {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={{ flex: 1 }}>
           <Camera
-            style={{ width: width, height: height * 0.8}}
+            style={{ width: width, height: height * 0.8 }}
             type={CameraType.back}
             ref={(ref) => {
               camera = ref;
@@ -231,9 +239,9 @@ export default function Scanner() {
             <View
               style={{
                 flex: 1,
-                backgroundColor: 'transparent',
-                justifyContent: 'flex-end',
-                alignItems: 'center',
+                backgroundColor: "transparent",
+                justifyContent: "flex-end",
+                alignItems: "center",
               }}
             >
               <Button
@@ -244,21 +252,25 @@ export default function Scanner() {
             </View>
           </Camera>
           {capturedImage && (
-            <View style={{ alignItems: 'center' }}>
+            <View style={{ alignItems: "center" }}>
               <Image
                 source={{ uri: capturedImage }}
                 style={{ width: 300, height: 300, marginBottom: 10 }}
               />
               {/* <Text style={{ marginBottom: 10 }}>Detected Text:</Text> */}
               {/* <Text>{detectedText}</Text> */}
-              <Text style={{ marginTop: 20, fontSize: 18, fontWeight: 'bold' }}>New Ingredients:</Text>
+              <Text style={{ marginTop: 20, fontSize: 18, fontWeight: "bold" }}>
+                New Ingredients:
+              </Text>
               <Text>{output}</Text>
               <Button
                 title="Generate Recipes"
                 onPress={generateRecipes}
                 style={{ marginTop: 10 }}
               />
-              <Text style={{ marginTop: 20, fontSize: 18, fontWeight: 'bold' }}>Generated Recipe:</Text>
+              <Text style={{ marginTop: 20, fontSize: 18, fontWeight: "bold" }}>
+                Generated Recipe:
+              </Text>
               <Text>{recipe}</Text>
             </View>
           )}
