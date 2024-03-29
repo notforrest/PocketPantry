@@ -8,6 +8,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          headerShown: false,
           title: "Home",
           tabBarIcon(props) {
             return <Foundation name="home" size={24} color={props.color} />;
@@ -15,8 +16,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="receipt-parser/index"
+        name="scan-receipt"
         options={{
+          headerShown: false,
           headerTitle: "Scan Receipt",
           title: "Scanner",
           tabBarIcon(props) {
@@ -28,13 +30,6 @@ export default function TabLayout() {
               />
             );
           },
-        }}
-      />
-      <Tabs.Screen
-        name="receipt-parser/receipt-parser-old"
-        options={{
-          headerTitle: "Receipt Parser",
-          title: "OLD",
         }}
       />
     </Tabs>

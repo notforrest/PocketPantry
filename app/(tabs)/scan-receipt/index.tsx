@@ -1,26 +1,25 @@
 import { AutoFocus, Camera, CameraType } from "expo-camera";
 import * as ImageManipulator from "expo-image-manipulator";
+import { Link, Stack } from "expo-router";
 import React, { useState, useEffect } from "react";
 import {
   Text,
   View,
-  Image,
   ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
   Dimensions,
+  Pressable,
+  StyleSheet,
 } from "react-native";
-import { Button } from "react-native-elements";
 
 export default function Scanner() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [detectedText, setDetectedText] = useState<string>("");
-  const [recipe, setRecipe] = useState<string>("");
+  const [output, setOutput] = useState<string>("");
 
   const { width, height } = Dimensions.get("window");
-
-  const [output, setOutput] = useState<string>("");
 
   useEffect(() => {
     (async () => {
@@ -39,7 +38,7 @@ export default function Scanner() {
 
     setCapturedImage(photo.uri);
 
-    const apiKey = "API KEY"; // Replace with your API key
+    const apiKey = "AIzaSyDFOfZ6SLPXEoDvF7RqdML5NXxOfySeKa4"; // Replace with your API key
     const endpoint = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
     const base64Image = await convertImageToBase64(photo.uri);
 
@@ -116,38 +115,6 @@ export default function Scanner() {
     return items;
   };
 
-  const generateRecipes = async () => {
-    try {
-      // Hardcoded Apple Pie recipe
-      const applePieRecipe = `
-        Apple Pie Recipe:
-        Ingredients:
-        - 6 cups sliced apples
-        - 3/4 cup sugar
-        - 1 tablespoon all-purpose flour
-        - 1/2 teaspoon ground cinnamon
-        - 1/4 teaspoon ground nutmeg
-        - 1 tablespoon lemon juice
-        - 1 package refrigerated pie crusts (2 crusts)
-        - 1 tablespoon butter
-        Instructions:
-        1. Preheat oven to 425 degrees F (220 degrees C).
-        2. Mix sugar, flour, cinnamon, nutmeg, and lemon juice in a bowl.
-        3. Add apples to the mixture and toss until evenly coated.
-        4. Fit 1 pie crust into a 9-inch pie dish. Spoon apple mixture into the crust.
-        5. Cut butter into small pieces and dot the top of the apple mixture with butter.
-        6. Place the second pie crust on top and crimp the edges to seal.
-        7. Cut several slits in the top crust to vent steam.
-        8. Bake in preheated oven for 45 to 50 minutes, or until crust is golden brown and filling is bubbly.
-        9. Cool on a wire rack before serving. Enjoy!
-      `;
-
-      setRecipe(applePieRecipe);
-    } catch (error) {
-      console.error("Error generating recipe:", error);
-    }
-  };
-
   // Auto Focus code borrowed from: https://github.com/expo/expo/issues/26869#issuecomment-2001925877
   const [focus, setFocus] = useState<AutoFocus>(AutoFocus.on);
 
@@ -185,46 +152,49 @@ export default function Scanner() {
               camera = ref;
             }}
           >
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: "transparent",
-                justifyContent: "flex-end",
-                alignItems: "center",
-              }}
-            >
-              <Button
-                title="Take Picture"
-                onPress={takePicture}
-                style={{ marginBottom: 10 }}
-              />
+            <View style={styles.takePicCont}>
+              <Link
+                push
+                href={{
+                  pathname: "/scan-receipt/parser",
+                  params: { capturedImage, output },
+                }}
+                asChild
+              >
+                <Pressable
+                  onPress={() => {
+                    takePicture();
+                  }}
+                  style={styles.takePicButton}
+                >
+                  <Text style={styles.takePicText}>Take Picture</Text>
+                </Pressable>
+              </Link>
             </View>
           </Camera>
-          {capturedImage && (
-            <View style={{ alignItems: "center" }}>
-              <Image
-                source={{ uri: capturedImage }}
-                style={{ width: 300, height: 300, marginBottom: 10 }}
-              />
-              {/* <Text style={{ marginBottom: 10 }}>Detected Text:</Text> */}
-              {/* <Text>{detectedText}</Text> */}
-              <Text style={{ marginTop: 20, fontSize: 18, fontWeight: "bold" }}>
-                New Ingredients:
-              </Text>
-              <Text>{output}</Text>
-              <Button
-                title="Generate Recipes"
-                onPress={generateRecipes}
-                style={{ marginTop: 10 }}
-              />
-              <Text style={{ marginTop: 20, fontSize: 18, fontWeight: "bold" }}>
-                Generated Recipe:
-              </Text>
-              <Text>{recipe}</Text>
-            </View>
-          )}
         </View>
       </TouchableWithoutFeedback>
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  takePicCont: {
+    flex: 1,
+    backgroundColor: "transparent",
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  takePicButton: {
+    borderWidth: 1,
+    borderColor: "white",
+    borderRadius: 25,
+    marginBottom: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  takePicText: {
+    color: "white",
+    fontSize: 20,
+  },
+});
