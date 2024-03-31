@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { AutoFocus, Camera, CameraType } from "expo-camera";
 import * as ImageManipulator from "expo-image-manipulator";
 import { Link, Stack } from "expo-router";
@@ -18,6 +19,7 @@ export default function Scanner() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [detectedText, setDetectedText] = useState<string>("");
   const [output, setOutput] = useState<string>("");
+  const [cameraType, setCameraType] = useState<CameraType>(CameraType.back);
 
   const { width, height } = Dimensions.get("window");
 
@@ -147,12 +149,23 @@ export default function Scanner() {
           <Camera
             autoFocus={focus}
             style={{ width: width, height: height * 0.8 }}
-            type={CameraType.back}
+            type={cameraType}
             ref={(ref) => {
               camera = ref;
             }}
           >
             <View style={styles.takePicCont}>
+              <Pressable
+                onPress={() =>
+                  setCameraType(
+                    cameraType === CameraType.back
+                      ? CameraType.front
+                      : CameraType.back,
+                  )
+                }
+              >
+                <Ionicons name="camera-reverse" size={30} color="white" />
+              </Pressable>
               <Link
                 push
                 href={{
@@ -184,6 +197,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     justifyContent: "flex-end",
     alignItems: "center",
+    gap: 10,
   },
   takePicButton: {
     borderWidth: 1,
