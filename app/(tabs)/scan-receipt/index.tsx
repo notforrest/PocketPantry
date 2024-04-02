@@ -83,7 +83,14 @@ export default function Scanner() {
     return <View />;
   }
   if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
+    return (
+      <View style={styles.noCamScreen}>
+        <Text>{"No access to camera\nClick to access Library"}</Text>
+        <Pressable onPress={() => pickImageAsync()}>
+          <Ionicons name="images" size={35} color="black" />
+        </Pressable>
+      </View>
+    );
   }
 
   return (
@@ -131,6 +138,12 @@ export default function Scanner() {
 
 const styles = StyleSheet.create({
   screen: {},
+  noCamScreen: {
+    alignItems: "center",
+    flex: 1,
+    gap: 20,
+    justifyContent: "center",
+  },
   camera: {
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height * 0.8,
