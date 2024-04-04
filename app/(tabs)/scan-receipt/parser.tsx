@@ -105,21 +105,24 @@ export default function Parser() {
           <View style={{ alignItems: "center" }}>
             <Image
               source={{ uri: selectedImage.toString() }}
-              style={{ width: 300, height: 300, marginBottom: 10 }}
+              style={styles.image}
             />
-            <Button title="Parse Image" onPress={parsePicture} />
-            <Text style={{ marginTop: 20, fontSize: 18, fontWeight: "bold" }}>
-              New Ingredients:
-            </Text>
-            <Text>{text}</Text>
+            <View style={{ flexDirection: "row", gap: 40 }}>
+              <Button title="Redo Image" onPress={() => router.back()} />
+              <Button title="Accept Image" onPress={parsePicture} />
+            </View>
             {showConfirmation && (
-              <Button
-                title="Confirm Ingredients"
-                onPress={() => {
-                  router.push("/scan-receipt/confirmation");
-                  router.setParams({ ingredients });
-                }}
-              />
+              <View>
+                <Text style={styles.header}>Your Ingredients</Text>
+                <Text style={styles.text}>{text}</Text>
+                <Button
+                  title="Confirm Ingredients"
+                  onPress={() => {
+                    router.push("/scan-receipt/confirmation");
+                    router.setParams({ ingredients });
+                  }}
+                />
+              </View>
             )}
           </View>
         ) : (
@@ -157,12 +160,22 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   header: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
-    marginTop: 30,
+    marginVertical: 10,
+    textAlign: "center",
+  },
+  image: {
+    width: 300,
+    height: 300,
+    marginVertical: 20,
   },
   noImage: {
     fontSize: 36,
     textAlign: "center",
+  },
+  text: {
+    fontSize: 16,
+    lineHeight: 24,
   },
 });
