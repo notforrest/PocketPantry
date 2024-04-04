@@ -94,45 +94,53 @@ export default function Scanner() {
   }
 
   return (
-    <ScrollView>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.screen}>
-          <Camera
-            autoFocus={focus}
-            style={styles.camera}
-            type={cameraType}
-            ref={(ref) => {
-              camera = ref;
-            }}
-          >
-            <View style={styles.takePicCont}>
-              <Pressable
-                onPress={() =>
-                  setCameraType(
-                    cameraType === CameraType.back
-                      ? CameraType.front
-                      : CameraType.back,
-                  )
-                }
-              >
-                <Ionicons name="camera-reverse" size={40} color="white" />
-              </Pressable>
-              <Pressable
-                onPress={() => {
-                  takePicture();
-                }}
-                style={styles.takePicButton}
-              >
-                <Ionicons name="scan-circle" size={100} color="white" />
-              </Pressable>
-              <Pressable onPress={() => pickImageAsync()}>
-                <Ionicons name="images" size={35} color="white" />
-              </Pressable>
-            </View>
-          </Camera>
-        </View>
-      </TouchableWithoutFeedback>
-    </ScrollView>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.screen}>
+        <Camera
+          autoFocus={focus}
+          style={styles.camera}
+          type={cameraType}
+          ref={(ref) => {
+            camera = ref;
+          }}
+        >
+          <View style={styles.takePicCont}>
+            <Pressable
+              onPress={() =>
+                setCameraType(
+                  cameraType === CameraType.back
+                    ? CameraType.front
+                    : CameraType.back,
+                )
+              }
+              style={({ pressed }) =>
+                pressed ? { opacity: 0.7 } : { opacity: 1 }
+              }
+            >
+              <Ionicons name="camera-reverse" size={40} color="white" />
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                takePicture();
+              }}
+              style={({ pressed }) =>
+                pressed ? styles.takePicButtonPressed : styles.takePicButton
+              }
+            >
+              <Ionicons name="scan-circle" size={100} color="white" />
+            </Pressable>
+            <Pressable
+              onPress={() => pickImageAsync()}
+              style={({ pressed }) =>
+                pressed ? { opacity: 0.7 } : { opacity: 1 }
+              }
+            >
+              <Ionicons name="images" size={35} color="white" />
+            </Pressable>
+          </View>
+        </Camera>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -146,7 +154,7 @@ const styles = StyleSheet.create({
   },
   camera: {
     width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height * 0.8,
+    height: Dimensions.get("window").height * 0.81,
     justifyContent: "flex-end",
   },
   takePicCont: {
@@ -162,5 +170,13 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderRadius: 100,
     padding: 5,
+    opacity: 1,
+  },
+  takePicButtonPressed: {
+    borderWidth: 1,
+    borderColor: "white",
+    borderRadius: 100,
+    padding: 5,
+    opacity: 0.7,
   },
 });
