@@ -1,6 +1,14 @@
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Button, SectionList, StyleSheet, Text, View } from "react-native";
+import {
+  Animated,
+  Button,
+  SectionList,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { RectButton, Swipeable } from "react-native-gesture-handler";
 
 export default function ConfirmPage() {
   const { ingredients } = useLocalSearchParams<{ [key: string]: string[] }>();
@@ -41,6 +49,24 @@ export default function ConfirmPage() {
     } catch (error) {
       console.error("Error generating recipe:", error);
     }
+  };
+
+  const renderRightActions = (progress, dragX) => {
+    const trans = dragX.interpolate({
+      inputRange: [0, 50, 100, 101],
+      outputRange: [-20, 0, 0, 1],
+    });
+    return (
+      <RectButton
+        style={{
+          justifyContent: "center",
+          backgroundColor: "red",
+          padding: 10,
+        }}
+      >
+        <Animated.Text style={{ color: "white" }}>Delete</Animated.Text>
+      </RectButton>
+    );
   };
 
   return (
@@ -94,7 +120,11 @@ export default function ConfirmPage() {
             { title: "Accepted Ingredients", data: confirmedIngredients },
             { title: "Rejected Ingredients", data: rejectedIngredients },
           ]}
-          renderItem={({ item }) => <Text style={styles.item}>{item}</Text>}
+          renderItem={({ item }) => (
+            <Swipeable renderRightActions={renderRightActions}>
+              <Text style={styles.item}>{item}</Text>
+            </Swipeable>
+          )}
           renderSectionHeader={({ section }) => (
             <Text style={styles.sectionHeader}>{section.title}</Text>
           )}
