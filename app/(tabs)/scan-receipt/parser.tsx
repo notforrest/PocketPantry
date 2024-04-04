@@ -114,7 +114,7 @@ export default function Parser() {
             {showConfirmation && (
               <View>
                 <Text style={styles.header}>Your Ingredients</Text>
-                <Text style={styles.text}>{text}</Text>
+                <Text style={styles.body}>{text}</Text>
                 <Button
                   title="Confirm Ingredients"
                   onPress={() => {
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     fontSize: 36,
     textAlign: "center",
   },
-  text: {
+  body: {
     fontSize: 16,
     lineHeight: 24,
   },

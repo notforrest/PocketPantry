@@ -1,18 +1,15 @@
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { Button, SectionList, StyleSheet, Text, View } from "react-native";
 
 export default function ConfirmPage() {
   const { ingredients } = useLocalSearchParams<{ [key: string]: string[] }>();
   const [confirmedIngredients, setConfirmedIngredients] = useState<string[]>(
     [],
   );
+  const [rejectedIngredients, setRejectedIngredients] = useState<string[]>([]);
   const [ingredientIndex, setIngredientIndex] = useState<number>(0);
   const [recipe, setRecipe] = useState<string>("");
-
-  useEffect(() => {
-    setIngredientIndex(ingredientIndex + 1);
-  }, [confirmedIngredients]);
 
   const generateRecipes = async () => {
     try {
@@ -51,26 +48,39 @@ export default function ConfirmPage() {
       {ingredients && (
         <View>
           <Text style={styles.title}>Confirm Ingredients</Text>
-          <Text>{ingredients[ingredientIndex]}</Text>
+          <Text style={styles.body}>{ingredients[ingredientIndex]}</Text>
           <View style={styles.buttons}>
             <Button
               title="Reject"
-              onPress={() => setIngredientIndex(ingredientIndex + 1)}
+              onPress={() => {
+                setRejectedIngredients([
+                  ...rejectedIngredients,
+                  ingredients[ingredientIndex],
+                ]);
+                setIngredientIndex(ingredientIndex + 1);
+              }}
             />
             <Button
               title="Accept"
-              onPress={() =>
+              onPress={() => {
                 setConfirmedIngredients([
                   ...confirmedIngredients,
                   ingredients[ingredientIndex],
-                ])
-              }
+                ]);
+                setIngredientIndex(ingredientIndex + 1);
+              }}
+            />
+            <Button
+              title="Accept All"
+              onPress={() => {
+                setConfirmedIngredients([
+                  ...confirmedIngredients,
+                  ...ingredients.slice(ingredientIndex),
+                ]);
+                setIngredientIndex(ingredients.length);
+              }}
             />
           </View>
-          <Text style={{ justifyContent: "center", alignItems: "center" }}>
-            {confirmedIngredients.length}/{ingredients.length} ingredients
-            confirmed
-          </Text>
           {/* <Button title="Generate Recipes" onPress={generateRecipes} />
             <Text style={{ marginTop: 20, fontSize: 18, fontWeight: "bold" }}>
               Generated Recipe:
@@ -78,24 +88,56 @@ export default function ConfirmPage() {
             <Text>{recipe}</Text> */}
         </View>
       )}
+      <View style={styles.container}>
+        <SectionList
+          sections={[
+            { title: "Accepted Ingredients", data: confirmedIngredients },
+            { title: "Rejected Ingredients", data: rejectedIngredients },
+          ]}
+          renderItem={({ item }) => <Text style={styles.item}>{item}</Text>}
+          renderSectionHeader={({ section }) => (
+            <Text style={styles.sectionHeader}>{section.title}</Text>
+          )}
+          keyExtractor={(item, index) => item + index}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
     flex: 1,
     gap: 40,
-    justifyContent: "center",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
+    marginVertical: 24,
+    textAlign: "center",
+  },
+  body: {
+    fontSize: 18,
+    textAlign: "center",
   },
   buttons: {
     flexDirection: "row",
     gap: 20,
+    marginTop: 16,
     justifyContent: "center",
+  },
+  sectionHeader: {
+    paddingTop: 2,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingBottom: 2,
+    fontSize: 14,
+    fontWeight: "bold",
+    backgroundColor: "rgba(247,247,247,1.0)",
+  },
+  item: {
+    padding: 10,
+    fontSize: 18,
+    height: 44,
   },
 });
