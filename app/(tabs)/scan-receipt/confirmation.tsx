@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Animated,
@@ -131,6 +131,16 @@ export default function ConfirmPage() {
           keyExtractor={(item, index) => item + index}
         />
       </View>
+      <View style={styles.doneButton}>
+        <Button
+          title="Done"
+          onPress={() => {
+            router.navigate("/my-pantry");
+            router.setParams({ newItems: confirmedIngredients });
+          }}
+          disabled={ingredientIndex !== ingredients?.length}
+        />
+      </View>
     </View>
   );
 }
@@ -169,5 +179,11 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 18,
     height: 44,
+  },
+  doneButton: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    right: 20,
   },
 });

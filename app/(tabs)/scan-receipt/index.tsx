@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { AutoFocus, Camera, CameraType } from "expo-camera";
+import { AutoFocus, Camera, CameraType, FlashMode } from "expo-camera";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
@@ -19,6 +19,7 @@ export default function Scanner() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [cameraType, setCameraType] = useState<CameraType>(CameraType.back);
+  const [flashMode, setFlashMode] = useState<FlashMode>(FlashMode.off);
 
   let camera: Camera | null = null;
 
@@ -98,12 +99,33 @@ export default function Scanner() {
       <View style={styles.screen}>
         <Camera
           autoFocus={focus}
+          flashMode={flashMode}
           style={styles.camera}
           type={cameraType}
           ref={(ref) => {
             camera = ref;
           }}
         >
+          {cameraType === CameraType.back && (
+            <Pressable
+              onPress={() =>
+                setFlashMode(
+                  flashMode === FlashMode.off ? FlashMode.torch : FlashMode.off,
+                )
+              }
+              style={({ pressed }) => ({
+                alignItems: "center",
+                opacity: pressed ? 0.7 : 1,
+                marginBottom: 24,
+              })}
+            >
+              <Ionicons
+                name={flashMode === FlashMode.off ? "flash-off" : "flash"}
+                size={30}
+                color="white"
+              />
+            </Pressable>
+          )}
           <View style={styles.takePicCont}>
             <Pressable
               onPress={() =>
