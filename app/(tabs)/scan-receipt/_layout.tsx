@@ -4,7 +4,11 @@ export default function ScanLayout() {
   return (
     <Stack>
       <Stack.Screen name="index" options={{ headerTitle: "Camera" }} />
-      <Stack.Screen name="parser" options={{ headerTitle: "Receipt Parser" }} />
+      <Stack.Screen name="parser" options={{ headerTitle: "Receipt" }} />
+      <Stack.Screen
+        name="confirmation"
+        options={{ headerTitle: "Confirm Ingredients" }}
+      />
     </Stack>
   );
 }

@@ -26,6 +26,17 @@ export default function TabLayout() {
           },
         }}
       />
+      <Tabs.Screen
+        name="my-pantry/index"
+        options={{
+          headerShown: false,
+          headerTitle: "My Pantry",
+          title: "My Pantry",
+          tabBarIcon(props) {
+            return <Ionicons name="basket" size={24} color={props.color} />;
+          },
+        }}
+      />
     </Tabs>
   );
 }

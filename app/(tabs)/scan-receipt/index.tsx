@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { AutoFocus, Camera, CameraType } from "expo-camera";
+import { AutoFocus, Camera, CameraType, FlashMode } from "expo-camera";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
@@ -19,6 +19,7 @@ export default function Scanner() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [cameraType, setCameraType] = useState<CameraType>(CameraType.back);
+  const [flashMode, setFlashMode] = useState<FlashMode>(FlashMode.off);
 
   let camera: Camera | null = null;
 
@@ -83,57 +84,99 @@ export default function Scanner() {
     return <View />;
   }
   if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
+    return (
+      <View style={styles.noCamScreen}>
+        <Text>{"No access to camera\nClick to access Library"}</Text>
+        <Pressable onPress={() => pickImageAsync()}>
+          <Ionicons name="images" size={35} color="black" />
+        </Pressable>
+      </View>
+    );
   }
 
   return (
-    <ScrollView>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.screen}>
-          <Camera
-            autoFocus={focus}
-            style={styles.camera}
-            type={cameraType}
-            ref={(ref) => {
-              camera = ref;
-            }}
-          >
-            <View style={styles.takePicCont}>
-              <Pressable
-                onPress={() =>
-                  setCameraType(
-                    cameraType === CameraType.back
-                      ? CameraType.front
-                      : CameraType.back,
-                  )
-                }
-              >
-                <Ionicons name="camera-reverse" size={40} color="white" />
-              </Pressable>
-              <Pressable
-                onPress={() => {
-                  takePicture();
-                }}
-                style={styles.takePicButton}
-              >
-                <Ionicons name="scan-circle" size={100} color="white" />
-              </Pressable>
-              <Pressable onPress={() => pickImageAsync()}>
-                <Ionicons name="images" size={35} color="white" />
-              </Pressable>
-            </View>
-          </Camera>
-        </View>
-      </TouchableWithoutFeedback>
-    </ScrollView>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.screen}>
+        <Camera
+          autoFocus={focus}
+          flashMode={flashMode}
+          style={styles.camera}
+          type={cameraType}
+          ref={(ref) => {
+            camera = ref;
+          }}
+        >
+          {cameraType === CameraType.back && (
+            <Pressable
+              onPress={() =>
+                setFlashMode(
+                  flashMode === FlashMode.off ? FlashMode.torch : FlashMode.off,
+                )
+              }
+              style={({ pressed }) => ({
+                alignItems: "center",
+                opacity: pressed ? 0.7 : 1,
+                marginBottom: 24,
+              })}
+            >
+              <Ionicons
+                name={flashMode === FlashMode.off ? "flash-off" : "flash"}
+                size={30}
+                color="white"
+              />
+            </Pressable>
+          )}
+          <View style={styles.takePicCont}>
+            <Pressable
+              onPress={() =>
+                setCameraType(
+                  cameraType === CameraType.back
+                    ? CameraType.front
+                    : CameraType.back,
+                )
+              }
+              style={({ pressed }) =>
+                pressed ? { opacity: 0.7 } : { opacity: 1 }
+              }
+            >
+              <Ionicons name="camera-reverse" size={40} color="white" />
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                takePicture();
+              }}
+              style={({ pressed }) =>
+                pressed ? styles.takePicButtonPressed : styles.takePicButton
+              }
+            >
+              <Ionicons name="scan-circle" size={100} color="white" />
+            </Pressable>
+            <Pressable
+              onPress={() => pickImageAsync()}
+              style={({ pressed }) =>
+                pressed ? { opacity: 0.7 } : { opacity: 1 }
+              }
+            >
+              <Ionicons name="images" size={35} color="white" />
+            </Pressable>
+          </View>
+        </Camera>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {},
+  noCamScreen: {
+    alignItems: "center",
+    flex: 1,
+    gap: 20,
+    justifyContent: "center",
+  },
   camera: {
     width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height * 0.8,
+    height: Dimensions.get("window").height * 0.81,
     justifyContent: "flex-end",
   },
   takePicCont: {
@@ -149,5 +192,13 @@ const styles = StyleSheet.create({
     borderColor: "white",
     borderRadius: 100,
     padding: 5,
+    opacity: 1,
+  },
+  takePicButtonPressed: {
+    borderWidth: 1,
+    borderColor: "white",
+    borderRadius: 100,
+    padding: 5,
+    opacity: 0.7,
   },
 });
