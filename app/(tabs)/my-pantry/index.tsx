@@ -1,10 +1,50 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
-import { SectionList, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Animated,
+  SectionList,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { RectButton, Swipeable } from "react-native-gesture-handler";
 
 export default function MyPantry() {
-  const [pantryItems, setPantryItems] = useState<string[]>([]);
   const { newItems } = useLocalSearchParams<{ [key: string]: string[] }>();
+  const [pantryItems, setPantryItems] = useState<string[]>([]);
+  const [editable, setEditable] = useState<boolean>(false);
+
+  console.log(pantryItems);
+
+  const handleDelete = (index) => {
+    const newPantryItems = [...pantryItems];
+    newPantryItems.splice(index, 1);
+    setPantryItems(newPantryItems);
+  };
+
+  const renderRightActions = (progress, dragX) => {
+    const trans = dragX.interpolate({
+      inputRange: [0, 50, 100, 101],
+      outputRange: [-20, 0, 0, 1],
+    });
+    return (
+      <RectButton onPress={() => close} style={styles.rightAction}>
+        <Animated.Text
+          style={[
+            styles.actionText,
+            {
+              transform: [{ translateX: trans }],
+            },
+          ]}
+        >
+          Archive
+        </Animated.Text>
+      </RectButton>
+    );
+  };
 
   useEffect(() => {
     if (newItems) {
@@ -17,34 +57,40 @@ export default function MyPantry() {
       <Text style={styles.title}>My Pantry</Text>
       <SectionList
         sections={[
-          {
-            title: "Food",
-            data: pantryItems,
-          },
-          //   {
-          //     title: "Vegetables",
-          //     data: pantryItems.filter((item) => item === "Vegetable"),
-          //   },
-          //   {
-          //     title: "Grains",
-          //     data: pantryItems.filter((item) => item === "Grain"),
-          //   },
-          //   {
-          //     title: "Proteins",
-          //     data: pantryItems.filter((item) => item === "Protein"),
-          //   },
-          //   {
-          //     title: "Dairy",
-          //     data: pantryItems.filter((item) => item === "Dairy"),
-          //   },
-          //   {
-          //     title: "Other",
-          //     data: pantryItems.filter((item) => item === "Other"),
-          //   },
+          { title: "Food", data: pantryItems },
+          // {
+          //   title: "Vegetables",
+          //   data: pantryItems.filter((item) => item === "Vegetable"),
+          // },
+          // {
+          //   title: "Grains",
+          //   data: pantryItems.filter((item) => item === "Grain"),
+          // },
+          // {
+          //   title: "Proteins",
+          //   data: pantryItems.filter((item) => item === "Protein"),
+          // },
+          // {
+          //   title: "Dairy",
+          //   data: pantryItems.filter((item) => item === "Dairy"),
+          // },
+          // {
+          //   title: "Other",
+          //   data: pantryItems.filter((item) => item === "Other"),
+          // },
         ]}
-        renderItem={({ item }) => <Text style={styles.item}>{item}</Text>}
+        renderItem={({ item, index }) => (
+          <View style={styles.item}>
+            <TextInput
+              editable={editable}
+              onSubmitEditing={(e) => (pantryItems[index] = e.nativeEvent.text)}
+            >
+              {item}
+            </TextInput>
+          </View>
+        )}
         renderSectionHeader={({ section }) => (
-          <Text style={styles.category}>{section.title}</Text>
+          <Text style={styles.sectionHeader}>{section.title}</Text>
         )}
         keyExtractor={(item, index) => item + index}
       />
@@ -54,8 +100,6 @@ export default function MyPantry() {
 
 const styles = StyleSheet.create({
   page: {
-    alignContent: "center",
-    alignItems: "center",
     flex: 1,
     gap: 20,
     justifyContent: "center",
@@ -64,18 +108,57 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 48,
     fontWeight: "bold",
+    textAlign: "center",
   },
-  category: {
+  container: {
+    flex: 1,
+  },
+  list: {
+    flex: 1,
+    marginTop: 20,
+  },
+  body: {
+    fontSize: 18,
+    textAlign: "center",
+  },
+  buttons: {
+    flexDirection: "row",
+    gap: 20,
+    marginTop: 16,
+    justifyContent: "center",
+  },
+  sectionHeader: {
+    backgroundColor: "mintcream",
+    fontSize: 20,
+    fontWeight: "bold",
     paddingTop: 2,
     paddingLeft: 10,
     paddingRight: 10,
     paddingBottom: 2,
-    fontSize: 24,
-    fontWeight: "bold",
-    backgroundColor: "rgba(247,247,247,1.0)",
+    textAlign: "center",
   },
   item: {
-    fontSize: 18,
-    lineHeight: 36,
+    flex: 1,
+    padding: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  leftAction: {
+    flex: 1,
+    backgroundColor: "#497AFC",
+    justifyContent: "center",
+  },
+  actionText: {
+    color: "white",
+    fontSize: 16,
+    backgroundColor: "transparent",
+    padding: 10,
+  },
+  rightAction: {
+    alignItems: "center",
+    backgroundColor: "#497AFC",
+    flex: 1,
+    justifyContent: "center",
   },
 });

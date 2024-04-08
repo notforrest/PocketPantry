@@ -1,14 +1,17 @@
+import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Animated,
   Button,
+  Pressable,
   SectionList,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
-import { RectButton, Swipeable } from "react-native-gesture-handler";
+import { TextInput } from "react-native-gesture-handler";
 
 export default function ConfirmPage() {
   const { ingredients } = useLocalSearchParams<{ [key: string]: string[] }>();
@@ -18,6 +21,7 @@ export default function ConfirmPage() {
   const [rejectedIngredients, setRejectedIngredients] = useState<string[]>([]);
   const [ingredientIndex, setIngredientIndex] = useState<number>(0);
   const [recipe, setRecipe] = useState<string>("");
+  const [editable, setEditable] = useState<boolean>(false);
 
   const generateRecipes = async () => {
     try {
@@ -51,22 +55,10 @@ export default function ConfirmPage() {
     }
   };
 
-  const renderRightActions = (progress, dragX) => {
-    const trans = dragX.interpolate({
-      inputRange: [0, 50, 100, 101],
-      outputRange: [-20, 0, 0, 1],
-    });
-    return (
-      <RectButton
-        style={{
-          justifyContent: "center",
-          backgroundColor: "red",
-          padding: 10,
-        }}
-      >
-        <Animated.Text style={{ color: "white" }}>Delete</Animated.Text>
-      </RectButton>
-    );
+  const handleDelete = (index) => {
+    const newConfirmedIngredients = [...confirmedIngredients];
+    newConfirmedIngredients.splice(index, 1);
+    setConfirmedIngredients(newConfirmedIngredients);
   };
 
   return (
@@ -114,16 +106,31 @@ export default function ConfirmPage() {
             <Text>{recipe}</Text> */}
         </View>
       )}
-      <View style={styles.container}>
+      <View style={styles.list}>
         <SectionList
           sections={[
             { title: "Accepted Ingredients", data: confirmedIngredients },
             { title: "Rejected Ingredients", data: rejectedIngredients },
           ]}
-          renderItem={({ item }) => (
-            <Swipeable renderRightActions={renderRightActions}>
-              <Text style={styles.item}>{item}</Text>
-            </Swipeable>
+          renderItem={({ item, index }) => (
+            <View style={styles.item}>
+              <TextInput
+                editable={editable}
+                onSubmitEditing={(e) =>
+                  (confirmedIngredients[index] = e.nativeEvent.text)
+                }
+              >
+                {item}
+              </TextInput>
+              <View style={{ flexDirection: "row", gap: 20 }}>
+                <TouchableOpacity onPress={() => setEditable(true)}>
+                  <Ionicons name="pencil" size={24} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleDelete(index)}>
+                  <Ionicons name="trash" size={24} color="black" />
+                </TouchableOpacity>
+              </View>
+            </View>
           )}
           renderSectionHeader={({ section }) => (
             <Text style={styles.sectionHeader}>{section.title}</Text>
@@ -131,16 +138,16 @@ export default function ConfirmPage() {
           keyExtractor={(item, index) => item + index}
         />
       </View>
-      <View style={styles.doneButton}>
-        <Button
-          title="Done"
-          onPress={() => {
-            router.navigate("/my-pantry");
-            router.setParams({ newItems: confirmedIngredients });
-          }}
-          disabled={ingredientIndex !== ingredients?.length}
-        />
-      </View>
+      <TouchableOpacity
+        onPress={() => {
+          router.navigate("/my-pantry");
+          router.setParams({ newItems: confirmedIngredients });
+          router.dismissAll();
+        }}
+        disabled={ingredientIndex !== ingredients?.length}
+      >
+        <Text style={styles.doneButton}>Done</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -148,7 +155,11 @@ export default function ConfirmPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    gap: 40,
+  },
+  list: {
+    flex: 1,
+    marginTop: 45,
+    bottom: 45,
   },
   title: {
     fontSize: 24,
@@ -167,23 +178,29 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   sectionHeader: {
+    backgroundColor: "mintcream",
+    fontSize: 14,
+    fontWeight: "bold",
     paddingTop: 2,
     paddingLeft: 10,
     paddingRight: 10,
     paddingBottom: 2,
-    fontSize: 14,
-    fontWeight: "bold",
-    backgroundColor: "rgba(247,247,247,1.0)",
+    textAlign: "center",
   },
   item: {
     padding: 10,
-    fontSize: 18,
-    height: 44,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   doneButton: {
+    alignSelf: "center",
+    backgroundColor: "mintcream",
+    bottom: 0,
+    fontSize: 24,
+    paddingVertical: 10,
     position: "absolute",
-    bottom: 20,
-    left: 20,
-    right: 20,
+    textAlign: "center",
+    width: "100%",
   },
 });
