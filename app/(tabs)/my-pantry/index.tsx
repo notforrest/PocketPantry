@@ -27,8 +27,8 @@ export default function MyPantry() {
   const [itemEditable, setItemEditable] = useState<boolean>(false);
   const [editableSectionId, setEditableSectionId] = useState<number>(0);
   const [sections, setSections] = useState<Section[]>([
-    { id: 1, title: "Refrigerator", data: ["a", "b", "c", "d"] },
-    { id: 2, title: "Kitchen Counter", data: ["e", "f", "g", "h"] },
+    { id: 1, title: "Refrigerator", data: [] },
+    { id: 2, title: "Kitchen Counter", data: [] },
   ]);
   const [isCollapsed, setIsCollapsed] = useState<boolean[]>(
     Array(sections.length).fill(false),
@@ -167,18 +167,23 @@ export default function MyPantry() {
                       section.title === sections[0].title ? "none" : "flex",
                   }}
                   onPress={() => {
-                    const newSection = sections[sections.indexOf(section) - 1];
+                    const newSectionIndex = sections.indexOf(section) - 1;
+                    const newSection = sections[newSectionIndex];
                     const updatedNewSection = {
                       ...newSection,
                       data: [...newSection.data, item],
                     };
                     const updatedSections = [...sections];
-                    updatedSections[sections.indexOf(section) - 1] =
-                      updatedNewSection;
-                    updatedSections[sections.indexOf(section)] = {
+                    updatedSections[newSectionIndex] = updatedNewSection;
+                    updatedSections[newSectionIndex + 1] = {
                       ...section,
                       data: section.data.filter((_, i) => i !== index),
                     };
+                    setIsCollapsed(
+                      isCollapsed.map((value, i) =>
+                        i === newSectionIndex ? false : value,
+                      ),
+                    );
                     setSections(updatedSections);
                   }}
                 >
@@ -192,18 +197,23 @@ export default function MyPantry() {
                         : "flex",
                   }}
                   onPress={() => {
-                    const newSection = sections[sections.indexOf(section) + 1];
+                    const newSectionIndex = sections.indexOf(section) + 1;
+                    const newSection = sections[newSectionIndex];
                     const updatedNewSection = {
                       ...newSection,
                       data: [...newSection.data, item],
                     };
                     const updatedSections = [...sections];
-                    updatedSections[sections.indexOf(section) + 1] =
-                      updatedNewSection;
-                    updatedSections[sections.indexOf(section)] = {
+                    updatedSections[newSectionIndex] = updatedNewSection;
+                    updatedSections[newSectionIndex - 1] = {
                       ...section,
                       data: section.data.filter((_, i) => i !== index),
                     };
+                    setIsCollapsed(
+                      isCollapsed.map((value, i) =>
+                        i === newSectionIndex ? false : value,
+                      ),
+                    );
                     setSections(updatedSections);
                   }}
                 >
