@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   Button,
   Image,
   Keyboard,
@@ -16,12 +17,15 @@ export default function Parser() {
   const [text, setText] = useState("");
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const parsePicture = async () => {
     if (selectedImage) {
       const apiKey = "AIzaSyDFOfZ6SLPXEoDvF7RqdML5NXxOfySeKa4"; // Replace with your API key
       const endpoint = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
       const base64Image = await convertImageToBase64(selectedImage.toString());
+
+      setIsLoading(true);
 
       fetch(endpoint, {
         method: "POST",
@@ -42,7 +46,10 @@ export default function Parser() {
       })
         .then((response) => response.json())
         .then((data) => {
+          setIsLoading(false);
+
           const annotations = data.responses[0].textAnnotations;
+
           if (annotations && annotations.length > 0) {
             // setText(annotations[0].description);
             setText(parseHEBReceipt(annotations[0].description)); // Parse the detected text
@@ -107,10 +114,17 @@ export default function Parser() {
               source={{ uri: selectedImage.toString() }}
               style={styles.image}
             />
-            <View style={{ flexDirection: "row", gap: 40 }}>
-              <Button title="Redo Image" onPress={() => router.back()} />
-              <Button title="Accept Image" onPress={parsePicture} />
-            </View>
+            {!showConfirmation && (
+              <View style={{ flexDirection: "row", gap: 40 }}>
+                <Button title="Redo Image" onPress={() => router.back()} />
+                <Button title="Accept Image" onPress={parsePicture} />
+              </View>
+            )}
+            {isLoading ? (
+              <View style={{ marginTop: 20 }}>
+                <ActivityIndicator size="large" />
+              </View>
+            ) : null}
             {showConfirmation && (
               <View>
                 <Text style={styles.header}>Your Ingredients</Text>
