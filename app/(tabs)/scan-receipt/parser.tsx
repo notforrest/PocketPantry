@@ -21,7 +21,7 @@ export default function Parser() {
 
   const parsePicture = async () => {
     if (selectedImage) {
-      const apiKey = "AIzaSyDFOfZ6SLPXEoDvF7RqdML5NXxOfySeKa4"; // Replace with your API key
+      const apiKey = "API_KEY"; // Replace with your API key
       const endpoint = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
       const base64Image = await convertImageToBase64(selectedImage.toString());
 
