@@ -16,16 +16,18 @@ import {
 import Collapsible from "react-native-collapsible";
 
 type Section = {
+  id: number;
   title: string;
   data: string[];
 };
 
 export default function MyPantry() {
   const { newItems } = useLocalSearchParams<{ [key: string]: string[] }>();
-  const [editable, setEditable] = useState<boolean>(false);
+  const [itemEditable, setItemEditable] = useState<boolean>(false);
+  const [editableSectionId, setEditableSectionId] = useState<number>(0);
   const [sections, setSections] = useState<Section[]>([
-    { title: "Refrigerator", data: [] },
-    { title: "Kitchen Counter", data: [] },
+    { id: 1, title: "Refrigerator", data: [] },
+    { id: 2, title: "Kitchen Counter", data: [] },
   ]);
   const [isCollapsed, setIsCollapsed] = useState<boolean[]>(
     Array(sections.length).fill(true),
@@ -42,6 +44,16 @@ export default function MyPantry() {
     //   setPantryItems(newPantryItems);
   };
 
+  const handleTitleChange = (newTitle: string) => {
+    setSections(
+      sections.map((section) =>
+        section.id === editableSectionId
+          ? { ...section, title: newTitle }
+          : section,
+      ),
+    );
+  };
+
   const toggleCollapse = (index: number) => {
     setIsCollapsed(
       isCollapsed.map((value, i) => (i === index ? !value : value)),
@@ -50,16 +62,13 @@ export default function MyPantry() {
 
   useEffect(() => {
     if (newItems) {
-      setSections([{ title: "Refrigerator", data: [...newItems] }]);
+      setSections([{ id: 1, title: "Refrigerator", data: [...newItems] }]);
     }
 
     // Placeholder
     setSections([
-      { title: "Refrigerator", data: ["a", "b", "c", "d"] },
-      {
-        title: "Kitchen Counter",
-        data: ["e", "f", "g", "h"],
-      },
+      { id: 1, title: "Refrigerator", data: ["a", "b", "c", "d"] },
+      { id: 2, title: "Kitchen Counter", data: ["e", "f", "g", "h"] },
     ]);
   }, []);
 
@@ -77,7 +86,7 @@ export default function MyPantry() {
             <View style={styles.sectionItem}>
               <TextInput>{item}</TextInput>
               <View style={{ flexDirection: "row", gap: 20 }}>
-                <TouchableOpacity onPress={() => setEditable(true)}>
+                <TouchableOpacity onPress={() => setItemEditable(true)}>
                   <Ionicons name="pencil" size={24} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleDelete(index)}>
@@ -92,16 +101,29 @@ export default function MyPantry() {
             onPress={() => toggleCollapse(sections.indexOf(section))}
             style={styles.sectionHeader}
           >
-            <Text style={styles.sectionHeader}>{section.title}</Text>
-            <Ionicons
-              name={
-                isCollapsed[sections.indexOf(section)]
-                  ? "chevron-down"
-                  : "chevron-up"
-              }
-              size={24}
-              color="black"
+            <TextInput
+              editable={section.id === editableSectionId}
+              onChangeText={handleTitleChange}
+              onEndEditing={() => setEditableSectionId(0)}
+              style={styles.sectionHeader}
+              value={section.title}
             />
+            <View style={styles.sectionHeaderButtons}>
+              <TouchableOpacity
+                onPress={() => setEditableSectionId(section.id)}
+              >
+                <Ionicons name="pencil" size={18} color="black" />
+              </TouchableOpacity>
+              <Ionicons
+                name={
+                  isCollapsed[sections.indexOf(section)]
+                    ? "chevron-down"
+                    : "chevron-up"
+                }
+                size={24}
+                color="black"
+              />
+            </View>
           </Pressable>
         )}
         keyExtractor={(item, index) => item + index}
@@ -113,7 +135,10 @@ export default function MyPantry() {
               autoFocus
               onChangeText={setLocationName}
               onSubmitEditing={() => {
-                setSections([...sections, { title: locationName, data: [] }]);
+                setSections([
+                  ...sections,
+                  { id: sections.length + 1, title: locationName, data: [] },
+                ]);
                 setModalVisible(false);
               }}
               placeholder="Enter location"
@@ -126,7 +151,10 @@ export default function MyPantry() {
               <Button
                 title="Add"
                 onPress={() => {
-                  setSections([...sections, { title: locationName, data: [] }]);
+                  setSections([
+                    ...sections,
+                    { id: sections.length + 1, title: locationName, data: [] },
+                  ]);
                   setModalVisible(false);
                 }}
               />
@@ -165,6 +193,11 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     paddingVertical: 3,
     textAlign: "center",
+  },
+  sectionHeaderButtons: {
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 10,
   },
   sectionItem: {
     flex: 1,
