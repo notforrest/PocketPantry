@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Button,
@@ -29,7 +29,6 @@ export default function MyPantry() {
   const [sections, setSections] = useState<Section[]>([
     { id: 1, title: "Refrigerator", data: ["a", "b", "c", "d"] },
     { id: 2, title: "Kitchen Counter", data: ["e", "f", "g", "h"] },
-    { id: 3, title: "Unsorted", data: [] },
   ]);
   const [isCollapsed, setIsCollapsed] = useState<boolean[]>(
     Array(sections.length).fill(false),
@@ -40,9 +39,6 @@ export default function MyPantry() {
   const [showDeletes, setShowDeletes] = useState<boolean>(false);
   const [showEdits, setShowEdits] = useState<boolean>(false);
 
-  console.log(newItems);
-
-  // TODO: Implement handleDelete function
   const handleDelete = (index: number) => {
     Alert.alert(
       "Delete Section",
@@ -87,6 +83,7 @@ export default function MyPantry() {
     );
   };
 
+  // Add new items to the "Unsorted" section
   useEffect(() => {
     if (newItems) {
       setSections((prevSections) => {
@@ -103,8 +100,10 @@ export default function MyPantry() {
           updatedSections[unsortedSectionIndex] = updatedUnsortedSection;
           return updatedSections;
         } else {
-          addSection("Unsorted", newItems);
-          return prevSections;
+          return [
+            { id: prevSections.length + 1, title: "Unsorted", data: newItems },
+            ...prevSections,
+          ];
         }
       });
     }
@@ -112,6 +111,10 @@ export default function MyPantry() {
 
   useEffect(() => {
     setIsCollapsed([...isCollapsed, true]);
+
+    if (sections[0].title === "Unsorted" && sections[0].data.length === 0) {
+      setSections((prevSections) => prevSections.filter((_, i) => i !== 0));
+    }
   }, [sections]);
 
   return (
@@ -158,6 +161,54 @@ export default function MyPantry() {
                 >
                   <Ionicons name="trash" size={18} color="black" />
                 </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    display:
+                      section.title === sections[0].title ? "none" : "flex",
+                  }}
+                  onPress={() => {
+                    const newSection = sections[sections.indexOf(section) - 1];
+                    const updatedNewSection = {
+                      ...newSection,
+                      data: [...newSection.data, item],
+                    };
+                    const updatedSections = [...sections];
+                    updatedSections[sections.indexOf(section) - 1] =
+                      updatedNewSection;
+                    updatedSections[sections.indexOf(section)] = {
+                      ...section,
+                      data: section.data.filter((_, i) => i !== index),
+                    };
+                    setSections(updatedSections);
+                  }}
+                >
+                  <Ionicons name="caret-up" size={18} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    display:
+                      section.title === sections[sections.length - 1].title
+                        ? "none"
+                        : "flex",
+                  }}
+                  onPress={() => {
+                    const newSection = sections[sections.indexOf(section) + 1];
+                    const updatedNewSection = {
+                      ...newSection,
+                      data: [...newSection.data, item],
+                    };
+                    const updatedSections = [...sections];
+                    updatedSections[sections.indexOf(section) + 1] =
+                      updatedNewSection;
+                    updatedSections[sections.indexOf(section)] = {
+                      ...section,
+                      data: section.data.filter((_, i) => i !== index),
+                    };
+                    setSections(updatedSections);
+                  }}
+                >
+                  <Ionicons name="caret-down" size={18} color="black" />
+                </TouchableOpacity>
               </View>
             </View>
           </Collapsible>
@@ -165,13 +216,19 @@ export default function MyPantry() {
         renderSectionHeader={({ section }) => (
           <Pressable
             onPress={() => toggleCollapse(sections.indexOf(section))}
-            style={styles.sectionHeader}
+            style={[
+              styles.sectionHeader,
+              section.title === "Unsorted" && styles.sectionUnsorted,
+            ]}
           >
             <TextInput
               editable={section.id === editableSectionId}
               onChangeText={handleTitleChange}
               onEndEditing={() => setEditableSectionId(0)}
-              style={styles.sectionHeader}
+              style={[
+                styles.sectionHeader,
+                section.title === "Unsorted" && styles.sectionUnsorted,
+              ]}
               value={section.title}
             />
             <View style={styles.sectionHeaderButtons}>
@@ -212,11 +269,11 @@ export default function MyPantry() {
               autoFocus
               onChangeText={setLocationName}
               onSubmitEditing={() => {
-                if (locationName) {
+                if (!locationName || locationName === "Unsorted") {
+                  Alert.alert("Please enter a valid location name.");
+                } else {
                   addSection(locationName);
                   setAddLocationModalVisible(false);
-                } else {
-                  Alert.alert("Please enter a location name.");
                 }
               }}
               placeholder="Enter location"
@@ -276,6 +333,9 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     textAlign: "center",
   },
+  sectionUnsorted: {
+    backgroundColor: "mistyrose",
+  },
   sectionHeaderButtons: {
     alignItems: "center",
     flexDirection: "row",
@@ -289,6 +349,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
   },
+  centered: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "center",
+  },
   modal: {
     alignItems: "center",
     alignSelf: "center",
@@ -297,18 +362,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 35,
     paddingTop: 35,
     paddingBottom: 25,
-    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-  },
-  centered: {
-    alignItems: "center",
-    flex: 1,
-    justifyContent: "center",
   },
   modalText: {
     borderColor: "gray",
