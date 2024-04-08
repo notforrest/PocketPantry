@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   SectionList,
@@ -13,57 +13,83 @@ import { TextInput } from "react-native-gesture-handler";
 
 export default function ConfirmPage() {
   const { ingredients } = useLocalSearchParams<{ [key: string]: string[] }>();
+  const [ingredientIndex, setIngredientIndex] = useState<number>(0);
   const [confirmedIngredients, setConfirmedIngredients] = useState<string[]>(
     [],
   );
   const [rejectedIngredients, setRejectedIngredients] = useState<string[]>([]);
-  const [ingredientIndex, setIngredientIndex] = useState<number>(0);
   const [editable, setEditable] = useState<boolean>(false);
+  const [itemsVisible, setItemsVisible] = useState<boolean>(true);
 
   const handleDelete = (index: number) => {
     const newConfirmedIngredients = [...confirmedIngredients];
+    setRejectedIngredients([
+      ...rejectedIngredients,
+      newConfirmedIngredients[index],
+    ]);
     newConfirmedIngredients.splice(index, 1);
     setConfirmedIngredients(newConfirmedIngredients);
   };
+
+  const handleUndo = (index: number) => {
+    const newRejectedIngredients = [...rejectedIngredients];
+    setConfirmedIngredients([
+      ...confirmedIngredients,
+      newRejectedIngredients[index],
+    ]);
+    newRejectedIngredients.splice(index, 1);
+    setRejectedIngredients(newRejectedIngredients);
+  };
+
+  useEffect(() => {
+    if (ingredientIndex === ingredients?.length) {
+      setItemsVisible(false);
+    }
+  });
 
   return (
     <View style={styles.container}>
       {ingredients && (
         <View>
           <Text style={styles.title}>Confirm Ingredients</Text>
-          <Text style={styles.body}>{ingredients[ingredientIndex]}</Text>
-          <View style={styles.buttons}>
-            <Button
-              title="Reject"
-              onPress={() => {
-                setRejectedIngredients([
-                  ...rejectedIngredients,
-                  ingredients[ingredientIndex],
-                ]);
-                setIngredientIndex(ingredientIndex + 1);
-              }}
-            />
-            <Button
-              title="Accept"
-              onPress={() => {
-                setConfirmedIngredients([
-                  ...confirmedIngredients,
-                  ingredients[ingredientIndex],
-                ]);
-                setIngredientIndex(ingredientIndex + 1);
-              }}
-            />
-            <Button
-              title="Accept All"
-              onPress={() => {
-                setConfirmedIngredients([
-                  ...confirmedIngredients,
-                  ...ingredients.slice(ingredientIndex),
-                ]);
-                setIngredientIndex(ingredients.length);
-              }}
-            />
-          </View>
+          {itemsVisible && (
+            <>
+              <Text style={styles.body}>{ingredients[ingredientIndex]}</Text>
+
+              <View style={styles.buttons}>
+                <Button
+                  title="Reject"
+                  onPress={() => {
+                    setRejectedIngredients([
+                      ...rejectedIngredients,
+                      ingredients[ingredientIndex],
+                    ]);
+                    setIngredientIndex(ingredientIndex + 1);
+                  }}
+                />
+                <Button
+                  title="Accept"
+                  onPress={() => {
+                    setConfirmedIngredients([
+                      ...confirmedIngredients,
+                      ingredients[ingredientIndex],
+                    ]);
+                    setIngredientIndex(ingredientIndex + 1);
+                  }}
+                />
+                <Button
+                  title="Accept All"
+                  onPress={() => {
+                    setConfirmedIngredients([
+                      ...confirmedIngredients,
+                      ...ingredients.slice(ingredientIndex),
+                    ]);
+                    setIngredientIndex(ingredients.length);
+                  }}
+                />
+              </View>
+            </>
+          )}
         </View>
       )}
       <View style={styles.list}>
@@ -72,7 +98,7 @@ export default function ConfirmPage() {
             { title: "Accepted Ingredients", data: confirmedIngredients },
             { title: "Rejected Ingredients", data: rejectedIngredients },
           ]}
-          renderItem={({ item, index }) => (
+          renderItem={({ item, index, section }) => (
             <View style={styles.item}>
               <TextInput
                 editable={editable}
@@ -84,11 +110,17 @@ export default function ConfirmPage() {
               </TextInput>
               <View style={{ flexDirection: "row", gap: 20 }}>
                 <TouchableOpacity onPress={() => setEditable(true)}>
-                  <Ionicons name="pencil" size={24} color="black" />
+                  <Ionicons name="pencil" size={20} color="black" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleDelete(index)}>
-                  <Ionicons name="trash" size={24} color="black" />
-                </TouchableOpacity>
+                {section.title === "Accepted Ingredients" ? (
+                  <TouchableOpacity onPress={() => handleDelete(index)}>
+                    <Ionicons name="trash" size={20} color="black" />
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity onPress={() => handleUndo(index)}>
+                    <Ionicons name="arrow-undo" size={20} color="black" />
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           )}
@@ -134,7 +166,7 @@ const styles = StyleSheet.create({
   buttons: {
     flexDirection: "row",
     gap: 20,
-    marginTop: 16,
+    marginVertical: 16,
     justifyContent: "center",
   },
   sectionHeader: {

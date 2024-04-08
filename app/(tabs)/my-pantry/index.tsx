@@ -1,7 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Button,
   Modal,
   Pressable,
@@ -26,22 +27,41 @@ export default function MyPantry() {
   const [itemEditable, setItemEditable] = useState<boolean>(false);
   const [editableSectionId, setEditableSectionId] = useState<number>(0);
   const [sections, setSections] = useState<Section[]>([
-    { id: 1, title: "Refrigerator", data: [] },
-    { id: 2, title: "Kitchen Counter", data: [] },
+    { id: 1, title: "Refrigerator", data: ["a", "b", "c", "d"] },
+    { id: 2, title: "Kitchen Counter", data: ["e", "f", "g", "h"] },
+    { id: 3, title: "Unsorted", data: [] },
   ]);
   const [isCollapsed, setIsCollapsed] = useState<boolean[]>(
-    Array(sections.length).fill(true),
+    Array(sections.length).fill(false),
   );
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [addLocationModalVisible, setAddLocationModalVisible] =
+    useState<boolean>(false);
   const [locationName, setLocationName] = useState<string>("");
+  const [showDeletes, setShowDeletes] = useState<boolean>(false);
+  const [showEdits, setShowEdits] = useState<boolean>(false);
 
-  console.log(sections);
+  console.log(newItems);
 
   // TODO: Implement handleDelete function
   const handleDelete = (index: number) => {
-    //   const newPantryItems = [...pantryItems];
-    //   newPantryItems.splice(index, 1);
-    //   setPantryItems(newPantryItems);
+    Alert.alert(
+      "Delete Section",
+      "Are you sure you want to delete this section?\n\nThis will delete all of your items in this section.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () =>
+            setSections((prevSections) =>
+              prevSections.filter((section, i) => i !== index),
+            ),
+        },
+      ],
+    );
   };
 
   const handleTitleChange = (newTitle: string) => {
@@ -54,6 +74,13 @@ export default function MyPantry() {
     );
   };
 
+  const addSection = (title: string, data: string[] = []) => {
+    setSections((prevSections) => [
+      ...prevSections,
+      { id: prevSections.length + 1, title, data },
+    ]);
+  };
+
   const toggleCollapse = (index: number) => {
     setIsCollapsed(
       isCollapsed.map((value, i) => (i === index ? !value : value)),
@@ -62,15 +89,26 @@ export default function MyPantry() {
 
   useEffect(() => {
     if (newItems) {
-      setSections([{ id: 1, title: "Refrigerator", data: [...newItems] }]);
+      setSections((prevSections) => {
+        const unsortedSectionIndex = prevSections.findIndex(
+          (section) => section.title === "Unsorted",
+        );
+        if (unsortedSectionIndex !== -1) {
+          const unsortedSection = prevSections[unsortedSectionIndex];
+          const updatedUnsortedSection = {
+            ...unsortedSection,
+            data: [...unsortedSection.data, ...newItems],
+          };
+          const updatedSections = [...prevSections];
+          updatedSections[unsortedSectionIndex] = updatedUnsortedSection;
+          return updatedSections;
+        } else {
+          addSection("Unsorted", newItems);
+          return prevSections;
+        }
+      });
     }
-
-    // Placeholder
-    setSections([
-      { id: 1, title: "Refrigerator", data: ["a", "b", "c", "d"] },
-      { id: 2, title: "Kitchen Counter", data: ["e", "f", "g", "h"] },
-    ]);
-  }, []);
+  }, [JSON.stringify(newItems)]);
 
   useEffect(() => {
     setIsCollapsed([...isCollapsed, true]);
@@ -79,18 +117,46 @@ export default function MyPantry() {
   return (
     <SafeAreaView style={styles.page}>
       <Text style={styles.title}>My Pantry</Text>
+      <View style={styles.buttons}>
+        <TouchableOpacity
+          onPress={() => setIsCollapsed(Array(sections.length).fill(false))}
+        >
+          <Ionicons name="chevron-expand" size={24} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setIsCollapsed(Array(sections.length).fill(true))}
+        >
+          <Ionicons name="chevron-collapse" size={24} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setAddLocationModalVisible(true)}>
+          <Ionicons name="add" size={24} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setShowEdits(!showEdits)}>
+          <Ionicons name="pencil" size={20} color="black" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setShowDeletes(!showDeletes)}>
+          <Ionicons name="trash" size={20} color="black" />
+        </TouchableOpacity>
+      </View>
       <SectionList
+        style={{ flex: 1 }}
         sections={sections}
         renderItem={({ item, index, section }) => (
           <Collapsible collapsed={isCollapsed[sections.indexOf(section)]}>
             <View style={styles.sectionItem}>
-              <TextInput>{item}</TextInput>
+              <TextInput style={{ fontSize: 16 }}>{item}</TextInput>
               <View style={{ flexDirection: "row", gap: 20 }}>
-                <TouchableOpacity onPress={() => setItemEditable(true)}>
-                  <Ionicons name="pencil" size={24} color="black" />
+                <TouchableOpacity
+                  style={{ display: showEdits ? "flex" : "none" }}
+                  onPress={() => setItemEditable(true)}
+                >
+                  <Ionicons name="pencil" size={18} color="black" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleDelete(index)}>
-                  <Ionicons name="trash" size={24} color="black" />
+                <TouchableOpacity
+                  style={{ display: showDeletes ? "flex" : "none" }}
+                  onPress={() => handleDelete(index)}
+                >
+                  <Ionicons name="trash" size={18} color="black" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -110,9 +176,16 @@ export default function MyPantry() {
             />
             <View style={styles.sectionHeaderButtons}>
               <TouchableOpacity
+                style={{ display: showEdits ? "flex" : "none" }}
                 onPress={() => setEditableSectionId(section.id)}
               >
                 <Ionicons name="pencil" size={18} color="black" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ display: showDeletes ? "flex" : "none" }}
+                onPress={() => handleDelete(sections.indexOf(section))}
+              >
+                <Ionicons name="trash" size={18} color="black" />
               </TouchableOpacity>
               <Ionicons
                 name={
@@ -128,53 +201,62 @@ export default function MyPantry() {
         )}
         keyExtractor={(item, index) => item + index}
       />
-      <Modal animationType="slide" transparent visible={modalVisible}>
+      <Modal
+        animationType="slide"
+        transparent
+        visible={addLocationModalVisible}
+      >
         <View style={styles.centered}>
           <View style={styles.modal}>
             <TextInput
               autoFocus
               onChangeText={setLocationName}
               onSubmitEditing={() => {
-                setSections([
-                  ...sections,
-                  { id: sections.length + 1, title: locationName, data: [] },
-                ]);
-                setModalVisible(false);
+                if (locationName) {
+                  addSection(locationName);
+                  setAddLocationModalVisible(false);
+                } else {
+                  Alert.alert("Please enter a location name.");
+                }
               }}
               placeholder="Enter location"
               placeholderTextColor="gray"
               selectTextOnFocus
               style={styles.modalText}
             />
-            <View style={styles.modalButtons}>
-              <Button title="Cancel" onPress={() => setModalVisible(false)} />
+            <View style={styles.buttons}>
+              <Button
+                title="Cancel"
+                onPress={() => setAddLocationModalVisible(false)}
+              />
               <Button
                 title="Add"
                 onPress={() => {
-                  setSections([
-                    ...sections,
-                    { id: sections.length + 1, title: locationName, data: [] },
-                  ]);
-                  setModalVisible(false);
+                  if (locationName) {
+                    addSection(locationName);
+                    setAddLocationModalVisible(false);
+                  } else {
+                    Alert.alert("Please enter a location name.");
+                  }
                 }}
               />
             </View>
           </View>
         </View>
       </Modal>
-      <Button title="Add Location" onPress={() => setModalVisible(true)} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   page: {
+    flex: 1,
     gap: 20,
     justifyContent: "center",
     marginTop: 100,
   },
   title: {
-    fontSize: 48,
+    fontSize: 40,
     fontWeight: "bold",
     textAlign: "center",
   },
@@ -200,22 +282,21 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   sectionItem: {
+    alignItems: "center",
     flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   modal: {
-    margin: 20,
+    alignItems: "center",
+    alignSelf: "center",
     backgroundColor: "white",
     borderRadius: 20,
     paddingHorizontal: 35,
     paddingTop: 35,
     paddingBottom: 25,
-    alignItems: "center",
-    alignSelf: "center",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -225,9 +306,9 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   centered: {
+    alignItems: "center",
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
   },
   modalText: {
     borderColor: "gray",
@@ -238,8 +319,10 @@ const styles = StyleSheet.create({
     padding: 10,
     width: 300,
   },
-  modalButtons: {
+  buttons: {
+    alignItems: "center",
+    alignSelf: "center",
     flexDirection: "row",
-    gap: 20,
+    gap: 40,
   },
 });

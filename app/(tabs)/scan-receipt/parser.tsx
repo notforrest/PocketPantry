@@ -191,5 +191,6 @@ const styles = StyleSheet.create({
   body: {
     fontSize: 16,
     lineHeight: 24,
+    marginVertical: 10,
   },
 });
