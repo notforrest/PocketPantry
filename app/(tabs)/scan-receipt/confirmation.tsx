@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { router } from "expo-router";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Button,
   SectionList,
@@ -11,8 +11,9 @@ import {
 } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 
+import { IngredientsContext } from "../../../components/IngredientsContext";
+
 export default function ConfirmPage() {
-  const { ingredients } = useLocalSearchParams<{ [key: string]: string[] }>();
   const [ingredientIndex, setIngredientIndex] = useState<number>(0);
   const [confirmedIngredients, setConfirmedIngredients] = useState<string[]>(
     [],
@@ -20,6 +21,12 @@ export default function ConfirmPage() {
   const [rejectedIngredients, setRejectedIngredients] = useState<string[]>([]);
   const [editable, setEditable] = useState<boolean>(false);
   const [itemsVisible, setItemsVisible] = useState<boolean>(true);
+
+  const {
+    tempIngredients: ingredients,
+    addNewIngredients,
+    clearTempIngredients,
+  } = useContext(IngredientsContext);
 
   const handleDelete = (index: number) => {
     const newConfirmedIngredients = [...confirmedIngredients];
@@ -132,8 +139,9 @@ export default function ConfirmPage() {
       </View>
       <TouchableOpacity
         onPress={() => {
+          addNewIngredients(confirmedIngredients);
+          clearTempIngredients();
           router.navigate("/my-pantry");
-          router.setParams({ newItems: confirmedIngredients });
           router.dismissAll();
         }}
         disabled={ingredientIndex !== ingredients?.length}

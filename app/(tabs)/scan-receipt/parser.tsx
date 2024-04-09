@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   ActivityIndicator,
   Button,
@@ -12,16 +12,20 @@ import {
   View,
 } from "react-native";
 
+import { IngredientsContext } from "../../../components/IngredientsContext";
+import { API_KEY } from "../../../config";
+
 export default function Parser() {
   const { selectedImage } = useLocalSearchParams();
   const [text, setText] = useState("");
-  const [ingredients, setIngredients] = useState<string[]>([]);
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const { addTempIngredient } = useContext(IngredientsContext);
+
   const parsePicture = async () => {
     if (selectedImage) {
-      const apiKey = "AIzaSyDFOfZ6SLPXEoDvF7RqdML5NXxOfySeKa4"; // Replace with your API key
+      const apiKey = API_KEY;
       const endpoint = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
       const base64Image = await convertImageToBase64(selectedImage.toString());
 
@@ -98,7 +102,7 @@ export default function Parser() {
     const items = matches
       .map((item, index) => {
         const [, , name] = item;
-        setIngredients((prev) => [...prev, name]);
+        addTempIngredient(name);
         return `${index + 1}) ${name}`;
       })
       .join("\n");
@@ -131,10 +135,7 @@ export default function Parser() {
                 <Text style={styles.body}>{text}</Text>
                 <Button
                   title="Confirm Ingredients"
-                  onPress={() => {
-                    router.push("/scan-receipt/confirmation");
-                    router.setParams({ ingredients });
-                  }}
+                  onPress={() => router.push("/scan-receipt/confirmation")}
                 />
               </View>
             )}
