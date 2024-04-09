@@ -44,10 +44,8 @@ export default function MyPantry() {
 
   const handleDeleteSection = (index: number) => {
     Alert.alert(
-      "Delete",
-      itemIndex !== undefined
-        ? "Are you sure you want to delete this item?"
-        : "Are you sure you want to delete this section?\n\nThis will delete all of your items in this section.",
+      "Delete Section",
+      "Are you sure you want to delete this section?\n\nThis will delete all of your items in this section.",
       [
         {
           text: "Cancel",
@@ -56,25 +54,14 @@ export default function MyPantry() {
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => {
-            setSections((prevSections) => {
-              if (itemIndex !== undefined) {
-                const updatedSections = [...prevSections];
-                const section = updatedSections[sectionIndex];
-                section.data.splice(itemIndex, 1);
-                return updatedSections;
-              } else {
-                const updatedSections = [...prevSections];
-                updatedSections.splice(sectionIndex, 1);
-                return updatedSections;
-              }
-            });
-          },
+          onPress: () =>
+            setSections((prevSections) =>
+              prevSections.filter((section, i) => i !== index),
+            ),
         },
-      ]
+      ],
     );
   };
-  
 
   const handleDeleteIngredient = (index: number) => {
     Alert.alert(
@@ -279,9 +266,9 @@ export default function MyPantry() {
             </View>
           </Collapsible>
         )}
-        renderSectionHeader={({ section, index }) => (
+        renderSectionHeader={({ section }) => (
           <Pressable
-            onPress={() => toggleCollapse(index)}
+            onPress={() => toggleCollapse(sections.indexOf(section))}
             style={[
               styles.sectionHeader,
               section.title === "Unsorted" && styles.sectionUnsorted,
@@ -312,7 +299,7 @@ export default function MyPantry() {
               </TouchableOpacity>
               <Ionicons
                 name={
-                  isCollapsed[index]
+                  isCollapsed[sections.indexOf(section)]
                     ? "chevron-down"
                     : "chevron-up"
                 }
