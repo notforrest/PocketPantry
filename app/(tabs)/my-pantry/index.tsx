@@ -24,8 +24,6 @@ type Section = {
 };
 
 export default function MyPantry() {
-  const [itemEditable, setItemEditable] = useState<boolean>(false);
-  const [editableSectionId, setEditableSectionId] = useState<number>(0);
   const [sections, setSections] = useState<Section[]>([
     { id: 1, title: "Refrigerator", data: [] },
     { id: 2, title: "Kitchen Counter", data: [] },
@@ -88,16 +86,6 @@ export default function MyPantry() {
     );
   };
 
-  const handleTitleChange = (newTitle: string) => {
-    setSections(
-      sections.map((section) =>
-        section.id === editableSectionId
-          ? { ...section, title: newTitle }
-          : section,
-      ),
-    );
-  };
-
   const addSection = (title: string, data: string[] = []) => {
     setSections((prevSections) => [
       ...prevSections,
@@ -108,6 +96,51 @@ export default function MyPantry() {
   const toggleCollapse = (index: number) => {
     setIsCollapsed(
       isCollapsed.map((value, i) => (i === index ? !value : value)),
+    );
+  };
+
+  const editItem = (sectionIndex: number, itemIndex: number) => {
+    Alert.prompt(
+      "Edit Item",
+      "Enter the new name for this item:",
+      (newName) => {
+        if (newName) {
+          setSections((prevSections) =>
+            prevSections.map((section, i) =>
+              i === sectionIndex
+                ? {
+                    ...section,
+                    data: section.data.map((item, j) =>
+                      j === itemIndex ? newName : item,
+                    ),
+                  }
+                : section,
+            ),
+          );
+        }
+      },
+      "plain-text",
+      sections[sectionIndex].data[itemIndex],
+    );
+  };
+
+  const editSection = (sectionIndex: number, oldName: string) => {
+    Alert.prompt(
+      "Edit Section",
+      "Enter the new name for this section:",
+      (newName) => {
+        if (newName) {
+          setSections((prevSections) =>
+            prevSections.map((section) =>
+              section.id === sectionIndex
+                ? { ...section, title: newName }
+                : section,
+            ),
+          );
+        }
+      },
+      "plain-text",
+      oldName,
     );
   };
 
@@ -168,12 +201,7 @@ export default function MyPantry() {
         <TouchableOpacity onPress={() => setAddLocationModalVisible(true)}>
           <Ionicons name="add" size={24} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            setShowEdits(!showEdits);
-            setItemEditable(false);
-          }}
-        >
+        <TouchableOpacity onPress={() => setShowEdits(!showEdits)}>
           <Ionicons name="pencil" size={20} color="black" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setShowDeletes(!showDeletes)}>
@@ -190,11 +218,11 @@ export default function MyPantry() {
         renderItem={({ item, index, section }) => (
           <Collapsible collapsed={isCollapsed[sections.indexOf(section)]}>
             <View style={styles.sectionItem}>
-              <TextInput style={{ fontSize: 16, width: 290 }}>{item}</TextInput>
+              <Text style={{ fontSize: 16, width: 290 }}>{item}</Text>
               <View style={{ flexDirection: "row", gap: 20 }}>
                 <TouchableOpacity
                   style={{ display: showEdits ? "flex" : "none" }}
-                  onPress={() => setItemEditable(!itemEditable)}
+                  onPress={() => editItem(sections.indexOf(section), index)}
                 >
                   <Ionicons name="pencil" size={18} color="black" />
                 </TouchableOpacity>
@@ -274,23 +302,23 @@ export default function MyPantry() {
               section.title === "Unsorted" && styles.sectionUnsorted,
             ]}
           >
-            <TextInput
-              editable={section.id === editableSectionId}
-              onChangeText={handleTitleChange}
-              onEndEditing={() => setEditableSectionId(0)}
+            <Text
               style={[
                 styles.sectionHeader,
                 section.title === "Unsorted" && styles.sectionUnsorted,
               ]}
-              value={section.title}
-            />
+            >
+              {section.title}
+            </Text>
             <View style={styles.sectionHeaderButtons}>
-              <TouchableOpacity
-                style={{ display: showEdits ? "flex" : "none" }}
-                onPress={() => setEditableSectionId(section.id)}
-              >
-                <Ionicons name="pencil" size={18} color="black" />
-              </TouchableOpacity>
+              {section.title !== "Unsorted" && (
+                <TouchableOpacity
+                  style={{ display: showEdits ? "flex" : "none" }}
+                  onPress={() => editSection(section.id, section.title)}
+                >
+                  <Ionicons name="pencil" size={18} color="black" />
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
                 style={{ display: showDeletes ? "flex" : "none" }}
                 onPress={() => handleDeleteSection(sections.indexOf(section))}
