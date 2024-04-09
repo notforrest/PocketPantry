@@ -128,7 +128,7 @@ export default function ConfirmPage() {
           ]}
           renderItem={({ item, index, section }) => (
             <View style={styles.item}>
-              <Text style={{ width: 290 }}>{item}</Text>
+              <Text style={{ width: "80%" }}>{item}</Text>
               <View style={{ flexDirection: "row", gap: 20 }}>
                 <TouchableOpacity
                   onPress={() => handleEdit(index, section.title, item)}
