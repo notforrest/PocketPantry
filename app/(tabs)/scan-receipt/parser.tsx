@@ -4,11 +4,9 @@ import {
   ActivityIndicator,
   Button,
   Image,
-  Keyboard,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 
@@ -111,59 +109,41 @@ export default function Parser() {
 
   return (
     <ScrollView>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        {selectedImage ? (
-          <View style={{ alignItems: "center" }}>
-            <Image
-              source={{ uri: selectedImage.toString() }}
-              style={styles.image}
-            />
-            {!showConfirmation && (
-              <View style={{ flexDirection: "row", gap: 40 }}>
-                <Button title="Redo Image" onPress={() => router.back()} />
-                <Button title="Accept Image" onPress={parsePicture} />
-              </View>
-            )}
-            {isLoading ? (
-              <View style={{ marginTop: 20 }}>
-                <ActivityIndicator size="large" />
-              </View>
-            ) : null}
-            {showConfirmation && (
-              <View>
-                <Text style={styles.header}>Your Ingredients</Text>
-                <Text style={styles.body}>{text}</Text>
-                <Button
-                  title="Confirm Ingredients"
-                  onPress={() => router.push("/scan-receipt/confirmation")}
-                />
-              </View>
-            )}
-          </View>
-        ) : (
-          <View>
-            <Text style={styles.noImage}>
-              No image detected. Go back and take a new picture!
-            </Text>
-          </View>
-        )}
-        {/* <View style={styles.container}>
-          <Text style={styles.header}>Paste text from a receipt</Text>
-          <TextInput
-            multiline
-            numberOfLines={4}
-            onEndEditing={(e) => setText(e.nativeEvent.text)}
-            placeholder="Enter text"
-            returnKeyType="done"
-            style={styles.text}
+      {selectedImage ? (
+        <View style={{ alignItems: "center" }}>
+          <Image
+            source={{ uri: selectedImage.toString() }}
+            style={styles.image}
           />
-          <Button
-            title="Parse"
-            onPress={() => setOutput(parseHEBReceipt(text))}
-          />
-          <Text style={styles.output}>{output}</Text>
-        </View> */}
-      </TouchableWithoutFeedback>
+          {!showConfirmation && (
+            <View style={{ flexDirection: "row", gap: 40 }}>
+              <Button title="Redo Image" onPress={() => router.back()} />
+              <Button title="Accept Image" onPress={parsePicture} />
+            </View>
+          )}
+          {isLoading ? (
+            <View style={{ marginTop: 20 }}>
+              <ActivityIndicator size="large" />
+            </View>
+          ) : null}
+          {showConfirmation && (
+            <View>
+              <Text style={styles.header}>Your Ingredients</Text>
+              <Text style={styles.body}>{text}</Text>
+              <Button
+                title="Confirm Ingredients"
+                onPress={() => router.push("/scan-receipt/confirmation")}
+              />
+            </View>
+          )}
+        </View>
+      ) : (
+        <View>
+          <Text style={styles.noImage}>
+            No image detected. Go back and take a new picture!
+          </Text>
+        </View>
+      )}
     </ScrollView>
   );
 }
