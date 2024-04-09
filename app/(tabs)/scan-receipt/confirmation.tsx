@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import {
+  Alert,
   Button,
   SectionList,
   StyleSheet,
@@ -9,7 +10,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { TextInput } from "react-native-gesture-handler";
 
 import { IngredientsContext } from "../../../components/IngredientsContext";
 
@@ -19,7 +19,6 @@ export default function ConfirmPage() {
     [],
   );
   const [rejectedIngredients, setRejectedIngredients] = useState<string[]>([]);
-  const [editable, setEditable] = useState<boolean>(false);
   const [itemsVisible, setItemsVisible] = useState<boolean>(true);
 
   const {
@@ -46,6 +45,28 @@ export default function ConfirmPage() {
     ]);
     newRejectedIngredients.splice(index, 1);
     setRejectedIngredients(newRejectedIngredients);
+  };
+
+  const handleEdit = (index: number, section: string, oldName: string) => {
+    Alert.prompt(
+      "Edit Ingredient",
+      "Enter the new ingredient",
+      (newIngredient) => {
+        if (newIngredient) {
+          if (section === "Accepted Ingredients") {
+            const newConfirmedIngredients = [...confirmedIngredients];
+            newConfirmedIngredients[index] = newIngredient;
+            setConfirmedIngredients(newConfirmedIngredients);
+          } else {
+            const newRejectedIngredients = [...rejectedIngredients];
+            newRejectedIngredients[index] = newIngredient;
+            setRejectedIngredients(newRejectedIngredients);
+          }
+        }
+      },
+      "plain-text",
+      oldName,
+    );
   };
 
   useEffect(() => {
@@ -107,16 +128,11 @@ export default function ConfirmPage() {
           ]}
           renderItem={({ item, index, section }) => (
             <View style={styles.item}>
-              <TextInput
-                editable={editable}
-                onSubmitEditing={(e) =>
-                  (confirmedIngredients[index] = e.nativeEvent.text)
-                }
-              >
-                {item}
-              </TextInput>
+              <Text style={{ width: 290 }}>{item}</Text>
               <View style={{ flexDirection: "row", gap: 20 }}>
-                <TouchableOpacity onPress={() => setEditable(true)}>
+                <TouchableOpacity
+                  onPress={() => handleEdit(index, section.title, item)}
+                >
                   <Ionicons name="pencil" size={20} color="black" />
                 </TouchableOpacity>
                 {section.title === "Accepted Ingredients" ? (
