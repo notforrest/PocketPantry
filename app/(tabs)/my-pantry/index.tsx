@@ -39,7 +39,7 @@ export default function MyPantry() {
   const [showDeletes, setShowDeletes] = useState<boolean>(false);
   const [showEdits, setShowEdits] = useState<boolean>(false);
 
-  const { ingredients, removeIngredient, newIngredients, clearNewIngredients } =
+  const { newIngredients, clearNewIngredients } =
     useContext(IngredientsContext);
 
   const handleDeleteSection = (index: number) => {
@@ -168,7 +168,12 @@ export default function MyPantry() {
         <TouchableOpacity onPress={() => setAddLocationModalVisible(true)}>
           <Ionicons name="add" size={24} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setShowEdits(!showEdits)}>
+        <TouchableOpacity
+          onPress={() => {
+            setShowEdits(!showEdits);
+            setItemEditable(false);
+          }}
+        >
           <Ionicons name="pencil" size={20} color="black" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setShowDeletes(!showDeletes)}>
@@ -185,11 +190,11 @@ export default function MyPantry() {
         renderItem={({ item, index, section }) => (
           <Collapsible collapsed={isCollapsed[sections.indexOf(section)]}>
             <View style={styles.sectionItem}>
-              <TextInput style={{ fontSize: 16 }}>{item}</TextInput>
+              <TextInput style={{ fontSize: 16, width: 290 }}>{item}</TextInput>
               <View style={{ flexDirection: "row", gap: 20 }}>
                 <TouchableOpacity
                   style={{ display: showEdits ? "flex" : "none" }}
-                  onPress={() => setItemEditable(true)}
+                  onPress={() => setItemEditable(!itemEditable)}
                 >
                   <Ionicons name="pencil" size={18} color="black" />
                 </TouchableOpacity>
