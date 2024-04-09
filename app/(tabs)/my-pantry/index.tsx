@@ -1,6 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Alert,
   Button,
@@ -16,6 +15,8 @@ import {
 } from "react-native";
 import Collapsible from "react-native-collapsible";
 
+import { IngredientsContext } from "../../../components/IngredientsContext";
+
 type Section = {
   id: number;
   title: string;
@@ -23,7 +24,6 @@ type Section = {
 };
 
 export default function MyPantry() {
-  const { newItems } = useLocalSearchParams<{ [key: string]: string[] }>();
   const [itemEditable, setItemEditable] = useState<boolean>(false);
   const [editableSectionId, setEditableSectionId] = useState<number>(0);
   const [sections, setSections] = useState<Section[]>([
@@ -39,7 +39,10 @@ export default function MyPantry() {
   const [showDeletes, setShowDeletes] = useState<boolean>(false);
   const [showEdits, setShowEdits] = useState<boolean>(false);
 
-  const handleDelete = (index: number) => {
+  const { ingredients, removeIngredient, newIngredients, clearNewIngredients } =
+    useContext(IngredientsContext);
+
+  const handleDeleteSection = (index: number) => {
     Alert.alert(
       "Delete Section",
       "Are you sure you want to delete this section?\n\nThis will delete all of your items in this section.",
@@ -55,6 +58,31 @@ export default function MyPantry() {
             setSections((prevSections) =>
               prevSections.filter((section, i) => i !== index),
             ),
+        },
+      ],
+    );
+  };
+
+  const handleDeleteIngredient = (index: number) => {
+    Alert.alert(
+      "Delete Ingredient",
+      "Are you sure you want to delete this ingredient?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            setSections((prevSections) =>
+              prevSections.map((section) => ({
+                ...section,
+                data: section.data.filter((_, i) => i !== index),
+              })),
+            );
+          },
         },
       ],
     );
@@ -85,7 +113,7 @@ export default function MyPantry() {
 
   // Add new items to the "Unsorted" section
   useEffect(() => {
-    if (newItems) {
+    if (newIngredients.length > 0) {
       setSections((prevSections) => {
         const unsortedSectionIndex = prevSections.findIndex(
           (section) => section.title === "Unsorted",
@@ -94,20 +122,26 @@ export default function MyPantry() {
           const unsortedSection = prevSections[unsortedSectionIndex];
           const updatedUnsortedSection = {
             ...unsortedSection,
-            data: [...unsortedSection.data, ...newItems],
+            data: [...unsortedSection.data, ...newIngredients],
           };
           const updatedSections = [...prevSections];
           updatedSections[unsortedSectionIndex] = updatedUnsortedSection;
           return updatedSections;
         } else {
           return [
-            { id: prevSections.length + 1, title: "Unsorted", data: newItems },
+            {
+              id: prevSections.length + 1,
+              title: "Unsorted",
+              data: newIngredients,
+            },
             ...prevSections,
           ];
         }
       });
+
+      clearNewIngredients();
     }
-  }, [JSON.stringify(newItems)]);
+  }, [newIngredients]);
 
   useEffect(() => {
     setIsCollapsed([...isCollapsed, true]);
@@ -138,7 +172,11 @@ export default function MyPantry() {
           <Ionicons name="pencil" size={20} color="black" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setShowDeletes(!showDeletes)}>
-          <Ionicons name="trash" size={20} color="black" />
+          <Ionicons
+            name={showDeletes ? "trash-outline" : "trash"}
+            size={20}
+            color="black"
+          />
         </TouchableOpacity>
       </View>
       <SectionList
@@ -157,7 +195,7 @@ export default function MyPantry() {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{ display: showDeletes ? "flex" : "none" }}
-                  onPress={() => handleDelete(index)}
+                  onPress={() => handleDeleteIngredient(index)}
                 >
                   <Ionicons name="trash" size={18} color="black" />
                 </TouchableOpacity>
@@ -250,7 +288,7 @@ export default function MyPantry() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ display: showDeletes ? "flex" : "none" }}
-                onPress={() => handleDelete(sections.indexOf(section))}
+                onPress={() => handleDeleteSection(sections.indexOf(section))}
               >
                 <Ionicons name="trash" size={18} color="black" />
               </TouchableOpacity>
