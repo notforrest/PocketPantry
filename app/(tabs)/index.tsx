@@ -11,7 +11,7 @@ export default function HomePage() {
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Pocket Chef!</Text>
       <TouchableOpacity style={styles.button} onPress={handlePress}>
-        <Text style={styles.buttonText}>Start</Text>
+        <Text style={styles.buttonText}>Scan to Start</Text>
       </TouchableOpacity>
     </View>
   );
