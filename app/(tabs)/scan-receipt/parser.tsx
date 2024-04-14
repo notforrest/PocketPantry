@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Text,
   View,
+  TouchableOpacity,
 } from "react-native";
 
 import { IngredientsContext } from "../../../components/IngredientsContext";
@@ -57,7 +58,7 @@ export default function Parser() {
             setText(parseHEBReceipt(annotations[0].description)); // Parse the detected text
             setShowConfirmation(true);
           } else {
-            // setText("No text detected");
+            //setText("No text detected");
             setText("");
           }
         })
@@ -108,17 +109,21 @@ export default function Parser() {
   };
 
   return (
-    <ScrollView>
+    <ScrollView style={styles.scrollView}>
       {selectedImage ? (
-        <View style={{ alignItems: "center" }}>
+        <View style={styles.container}>
           <Image
             source={{ uri: selectedImage.toString() }}
             style={styles.image}
           />
           {!showConfirmation && (
-            <View style={{ flexDirection: "row", gap: 40 }}>
-              <Button title="Redo Image" onPress={() => router.back()} />
-              <Button title="Accept Image" onPress={parsePicture} />
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity style={styles.button} onPress={() => router.back()}>
+                <Text style={styles.buttonText}>Redo Image</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={parsePicture}>
+                <Text style={styles.buttonText}>Accept Image</Text>
+              </TouchableOpacity>
             </View>
           )}
           {isLoading ? (
@@ -130,10 +135,9 @@ export default function Parser() {
             <View>
               <Text style={styles.header}>Your Ingredients</Text>
               <Text style={styles.body}>{text}</Text>
-              <Button
-                title="Confirm Ingredients"
-                onPress={() => router.push("/scan-receipt/confirmation")}
-              />
+              <TouchableOpacity style={styles.button} onPress={() => router.push("/scan-receipt/confirmation")}>
+                <Text style={styles.buttonText}>Confirm Ingredients</Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -149,10 +153,34 @@ export default function Parser() {
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#90d4cc',
+  },
   container: {
     alignItems: "center",
     flex: 1,
-    gap: 20,
+    marginTop: 20,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: '100%',
+    paddingHorizontal: 20,
+    marginTop: 20,
+  },
+  button: {
+    backgroundColor: '#006D77', 
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center', 
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   header: {
     fontSize: 24,
@@ -168,6 +196,7 @@ const styles = StyleSheet.create({
   noImage: {
     fontSize: 36,
     textAlign: "center",
+    marginTop: 20,
   },
   body: {
     fontSize: 16,
@@ -175,3 +204,4 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 });
+

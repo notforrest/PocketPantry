@@ -3,11 +3,10 @@ import { router } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
 import {
   Alert,
-  Button,
+  TouchableOpacity,
   SectionList,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 
@@ -15,34 +14,22 @@ import { IngredientsContext } from "../../../components/IngredientsContext";
 
 export default function ConfirmPage() {
   const [ingredientIndex, setIngredientIndex] = useState<number>(0);
-  const [confirmedIngredients, setConfirmedIngredients] = useState<string[]>(
-    [],
-  );
+  const [confirmedIngredients, setConfirmedIngredients] = useState<string[]>([]);
   const [rejectedIngredients, setRejectedIngredients] = useState<string[]>([]);
   const [itemsVisible, setItemsVisible] = useState<boolean>(true);
 
-  const {
-    tempIngredients: ingredients,
-    addNewIngredients,
-    clearTempIngredients,
-  } = useContext(IngredientsContext);
+  const { tempIngredients: ingredients, addNewIngredients, clearTempIngredients } = useContext(IngredientsContext);
 
   const handleDelete = (index: number) => {
     const newConfirmedIngredients = [...confirmedIngredients];
-    setRejectedIngredients([
-      ...rejectedIngredients,
-      newConfirmedIngredients[index],
-    ]);
+    setRejectedIngredients([...rejectedIngredients, newConfirmedIngredients[index]]);
     newConfirmedIngredients.splice(index, 1);
     setConfirmedIngredients(newConfirmedIngredients);
   };
 
   const handleUndo = (index: number) => {
     const newRejectedIngredients = [...rejectedIngredients];
-    setConfirmedIngredients([
-      ...confirmedIngredients,
-      newRejectedIngredients[index],
-    ]);
+    setConfirmedIngredients([...confirmedIngredients, newRejectedIngredients[index]]);
     newRejectedIngredients.splice(index, 1);
     setRejectedIngredients(newRejectedIngredients);
   };
@@ -83,77 +70,62 @@ export default function ConfirmPage() {
           {itemsVisible && (
             <>
               <Text style={styles.body}>{ingredients[ingredientIndex]}</Text>
-
               <View style={styles.buttons}>
-                <Button
-                  title="Reject"
-                  onPress={() => {
-                    setRejectedIngredients([
-                      ...rejectedIngredients,
-                      ingredients[ingredientIndex],
-                    ]);
+                <TouchableOpacity style={styles.rejectAcceptButton} onPress={() => {
+                    setRejectedIngredients([...rejectedIngredients, ingredients[ingredientIndex]]);
                     setIngredientIndex(ingredientIndex + 1);
-                  }}
-                />
-                <Button
-                  title="Accept"
-                  onPress={() => {
-                    setConfirmedIngredients([
-                      ...confirmedIngredients,
-                      ingredients[ingredientIndex],
-                    ]);
+                  }}>
+                  <Text style={styles.buttonText}>Reject</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.rejectAcceptButton} onPress={() => {
+                    setConfirmedIngredients([...confirmedIngredients, ingredients[ingredientIndex]]);
                     setIngredientIndex(ingredientIndex + 1);
-                  }}
-                />
-                <Button
-                  title="Accept All"
-                  onPress={() => {
-                    setConfirmedIngredients([
-                      ...confirmedIngredients,
-                      ...ingredients.slice(ingredientIndex),
-                    ]);
+                  }}>
+                  <Text style={styles.buttonText}>Accept</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.rejectAcceptButton} onPress={() => {
+                    setConfirmedIngredients([...confirmedIngredients, ...ingredients.slice(ingredientIndex)]);
                     setIngredientIndex(ingredients.length);
-                  }}
-                />
+                  }}>
+                  <Text style={styles.buttonText}>Accept All</Text>
+                </TouchableOpacity>
               </View>
             </>
           )}
         </View>
       )}
-      <View style={styles.list}>
-        <SectionList
-          sections={[
-            { title: "Accepted Ingredients", data: confirmedIngredients },
-            { title: "Rejected Ingredients", data: rejectedIngredients },
-          ]}
-          renderItem={({ item, index, section }) => (
-            <View style={styles.item}>
-              <Text style={{ width: "80%" }}>{item}</Text>
-              <View style={{ flexDirection: "row", gap: 20 }}>
-                <TouchableOpacity
-                  onPress={() => handleEdit(index, section.title, item)}
-                >
-                  <Ionicons name="pencil" size={20} color="black" />
+      <SectionList
+        sections={[
+          { title: "Accepted Ingredients", data: confirmedIngredients },
+          { title: "Rejected Ingredients", data: rejectedIngredients },
+        ]}
+        renderItem={({ item, index, section }) => (
+          <View style={styles.item}>
+            <Text style={{ width: "80%" }}>{item}</Text>
+            <View style={{ flexDirection: "row", gap: 20 }}>
+              <TouchableOpacity onPress={() => handleEdit(index, section.title, item)}>
+                <Ionicons name="pencil" size={20} color="black" />
+              </TouchableOpacity>
+              {section.title === "Accepted Ingredients" ? (
+                <TouchableOpacity onPress={() => handleDelete(index)}>
+                  <Ionicons name="trash" size={20} color="black" />
                 </TouchableOpacity>
-                {section.title === "Accepted Ingredients" ? (
-                  <TouchableOpacity onPress={() => handleDelete(index)}>
-                    <Ionicons name="trash" size={20} color="black" />
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity onPress={() => handleUndo(index)}>
-                    <Ionicons name="arrow-undo" size={20} color="black" />
-                  </TouchableOpacity>
-                )}
-              </View>
+              ) : (
+                <TouchableOpacity onPress={() => handleUndo(index)}>
+                  <Ionicons name="arrow-undo" size={20} color="black" />
+                </TouchableOpacity>
+              )}
             </View>
-          )}
-          renderSectionHeader={({ section }) => (
-            <Text style={styles.sectionHeader}>{section.title}</Text>
-          )}
-          keyExtractor={(item, index) => item + index}
-        />
-      </View>
+          </View>
+        )}
+        renderSectionHeader={({ section }) => (
+          <Text style={styles.sectionHeader}>{section.title}</Text>
+        )}
+        keyExtractor={(item, index) => item + index}
+        style={{ flex: 1 }}
+      />
       <TouchableOpacity
+        style={styles.doneButton}
         onPress={() => {
           addNewIngredients(confirmedIngredients);
           clearTempIngredients();
@@ -162,7 +134,7 @@ export default function ConfirmPage() {
         }}
         disabled={ingredientIndex !== ingredients?.length}
       >
-        <Text style={styles.doneButton}>Done</Text>
+        <Text style={styles.doneButtonText}>Done</Text>
       </TouchableOpacity>
     </View>
   );
@@ -171,11 +143,7 @@ export default function ConfirmPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  list: {
-    flex: 1,
-    marginTop: 45,
-    bottom: 45,
+    backgroundColor: '#90d4cc', 
   },
   title: {
     fontSize: 24,
@@ -189,34 +157,45 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flexDirection: "row",
-    gap: 20,
+    justifyContent: "space-around",
     marginVertical: 16,
-    justifyContent: "center",
+  },
+  rejectAcceptButton: {
+    backgroundColor: '#006D77',
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  buttonText: {
+    color: '#FFFFFF',  // White text
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   sectionHeader: {
-    backgroundColor: "mintcream",
-    fontSize: 14,
+    backgroundColor: "#006D77", 
+    color: '#FFFFFF', 
+    fontSize: 16,
     fontWeight: "bold",
-    paddingTop: 2,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingBottom: 2,
+    padding: 10,
     textAlign: "center",
   },
   item: {
+    backgroundColor: '#FFFFFF', 
     padding: 10,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
   doneButton: {
-    alignSelf: "center",
-    backgroundColor: "mintcream",
-    bottom: 0,
-    fontSize: 24,
+    backgroundColor: '#006D77',
     paddingVertical: 10,
     position: "absolute",
-    textAlign: "center",
+    bottom: 0,
     width: "100%",
+  },
+  doneButtonText: {
+    color: '#FFFFFF',  
+    fontSize: 24,
+    textAlign: "center",
   },
 });
