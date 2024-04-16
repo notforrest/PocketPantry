@@ -36,6 +36,17 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="manual/index"
+        options={{
+          headerShown: false,
+          headerTitle: "Manual Input",
+          title: "Manual",
+          tabBarIcon(props) {
+            return <Ionicons name="create" size={24} color={props.color} />;
+          },
+        }}
+      />
+      <Tabs.Screen
         name="my-pantry/index"
         options={{
           headerShown: false,

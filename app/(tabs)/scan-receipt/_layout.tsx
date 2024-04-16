@@ -9,7 +9,6 @@ export default function ScanLayout() {
         name="confirmation"
         options={{ headerTitle: "Confirm Ingredients" }}
       />
-      <Stack.Screen name="manual" options={{ headerTitle: "Manual Input" }} />
     </Stack>
   );
 }

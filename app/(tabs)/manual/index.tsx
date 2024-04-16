@@ -1,27 +1,25 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Alert,
-  Button,
-  SectionList,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-
-import { IngredientsContext } from "../../../components/IngredientsContext";
 import { FlatList } from "react-native-gesture-handler";
 
-export default function ManualPage() {
-  const [ingredientIndex, setIngredientIndex] = useState<number>(0);
+import { IngredientsContext } from "../../../utils/IngredientsContext";
+import { Theme, useTheme } from "../../../utils/ThemeProvider";
+
+export default function Manual() {
+  const styles = getStyles(useTheme());
   const [confirmedIngredients, setConfirmedIngredients] = useState<string[]>(
     [],
   );
   const [ingredient, setIngredient] = useState<string>("");
-  const textRef = useRef();
 
   const {
     tempIngredients: ingredients,
@@ -64,17 +62,19 @@ export default function ManualPage() {
             setConfirmedIngredients([...confirmedIngredients, ingredient]);
             setIngredient("");
           }}
-          style={{ fontSize: 20, marginTop: 10 }}
+          style={{ fontSize: 24 }}
         />
-        <Button
-          title="Add"
+        <TouchableOpacity
           onPress={() => {
             if (ingredient !== "") {
               setConfirmedIngredients([...confirmedIngredients, ingredient]);
               setIngredient("");
             }
           }}
-        />
+          style={styles.addButton}
+        >
+          <Text style={styles.addButtonText}>Add</Text>
+        </TouchableOpacity>
         {ingredients.map((item, index) => (
           <Text key={index}>{item}</Text>
         ))}
@@ -84,7 +84,7 @@ export default function ManualPage() {
           data={confirmedIngredients}
           renderItem={({ item, index }) => (
             <View style={styles.item}>
-              <Text style={{ fontSize: 20, width: 290 }}>{item}</Text>
+              <Text style={{ fontSize: 20, width: "80%" }}>{item}</Text>
               <View style={{ flexDirection: "row", gap: 20 }}>
                 <TouchableOpacity onPress={() => handleEdit(index, item)}>
                   <Ionicons name="pencil" size={20} color="black" />
@@ -101,50 +101,64 @@ export default function ManualPage() {
       <TouchableOpacity
         onPress={() => {
           addNewIngredients(confirmedIngredients);
+          clearTempIngredients();
+          setConfirmedIngredients([]);
           router.navigate("/my-pantry");
-          router.dismissAll();
         }}
-        disabled={ingredientIndex !== ingredients?.length}
       >
-        <Text style={styles.doneButton}>Done</Text>
+        <Text style={styles.doneButton}>Add All to Pantry</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    marginTop: 40,
-  },
-  input: {
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 20,
-  },
-  list: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  item: {
-    padding: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  doneButton: {
-    alignSelf: "center",
-    backgroundColor: "mintcream",
-    bottom: 0,
-    fontSize: 24,
-    paddingVertical: 10,
-    position: "absolute",
-    textAlign: "center",
-    width: "100%",
-  },
-});
+const getStyles = (theme: Theme) =>
+  StyleSheet.create({
+    page: {
+      backgroundColor: theme.background,
+      flex: 1,
+      paddingTop: 100,
+    },
+    input: {
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 20,
+    },
+    list: {
+      flex: 1,
+      paddingHorizontal: 20,
+    },
+    title: {
+      fontSize: 36,
+      fontWeight: "bold",
+      textAlign: "center",
+    },
+    item: {
+      padding: 10,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    addButton: {
+      backgroundColor: theme.secondary,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 20,
+      marginBottom: 15,
+    },
+    addButtonText: {
+      color: theme.white,
+      fontSize: 20,
+      fontWeight: "bold",
+    },
+    doneButton: {
+      alignSelf: "center",
+      backgroundColor: "mintcream",
+      bottom: 0,
+      fontSize: 24,
+      paddingVertical: 10,
+      position: "absolute",
+      textAlign: "center",
+      width: "100%",
+    },
+  });
