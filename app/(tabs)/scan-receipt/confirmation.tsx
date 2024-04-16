@@ -10,9 +10,11 @@ import {
   View,
 } from "react-native";
 
-import { IngredientsContext } from "../../../components/IngredientsContext";
+import { IngredientsContext } from "../../../utils/IngredientsContext";
+import { Theme, useTheme } from "../../../utils/ThemeProvider";
 
 export default function ConfirmPage() {
+  const styles = getStyles(useTheme());
   const [ingredientIndex, setIngredientIndex] = useState<number>(0);
   const [confirmedIngredients, setConfirmedIngredients] = useState<string[]>(
     [],
@@ -172,62 +174,63 @@ export default function ConfirmPage() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#90d4cc",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginVertical: 24,
-    textAlign: "center",
-  },
-  body: {
-    fontSize: 18,
-    textAlign: "center",
-  },
-  buttons: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginVertical: 16,
-  },
-  rejectAcceptButton: {
-    backgroundColor: "#006D77",
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-  },
-  buttonText: {
-    color: "#FFFFFF", // White text
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  sectionHeader: {
-    backgroundColor: "#006D77",
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
-    padding: 10,
-    textAlign: "center",
-  },
-  item: {
-    backgroundColor: "#90d4cc",
-    padding: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  doneButton: {
-    backgroundColor: "#006D77",
-    paddingVertical: 10,
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-  },
-  doneButtonText: {
-    color: "#FFFFFF",
-    fontSize: 24,
-    textAlign: "center",
-  },
-});
+const getStyles = (theme: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: "bold",
+      marginVertical: 24,
+      textAlign: "center",
+    },
+    body: {
+      fontSize: 18,
+      textAlign: "center",
+    },
+    buttons: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      marginVertical: 16,
+    },
+    rejectAcceptButton: {
+      backgroundColor: theme.secondary,
+      borderRadius: 20,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+    },
+    buttonText: {
+      color: theme.white,
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+    sectionHeader: {
+      backgroundColor: theme.primarydark,
+      color: theme.black,
+      fontSize: 16,
+      fontWeight: "bold",
+      padding: 10,
+      textAlign: "center",
+    },
+    item: {
+      backgroundColor: theme.background,
+      padding: 10,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    doneButton: {
+      backgroundColor: theme.secondary,
+      paddingVertical: 10,
+      position: "absolute",
+      bottom: 0,
+      width: "100%",
+    },
+    doneButtonText: {
+      color: theme.white,
+      fontSize: 24,
+      textAlign: "center",
+    },
+  });

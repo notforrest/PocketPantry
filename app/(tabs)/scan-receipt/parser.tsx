@@ -11,10 +11,12 @@ import {
   Alert,
 } from "react-native";
 
-import { IngredientsContext } from "../../../components/IngredientsContext";
 import { API_KEY } from "../../../config";
+import { IngredientsContext } from "../../../utils/IngredientsContext";
+import { Theme, useTheme } from "../../../utils/ThemeProvider";
 
 export default function Parser() {
+  const styles = getStyles(useTheme());
   const { selectedImage } = useLocalSearchParams();
   const [text, setText] = useState("");
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
@@ -120,10 +122,12 @@ export default function Parser() {
     <ScrollView style={styles.scrollView} ref={scrollRef}>
       {selectedImage ? (
         <View style={styles.container}>
-          <Image
-            source={{ uri: selectedImage.toString() }}
-            style={styles.image}
-          />
+          <View style={styles.imageShadow}>
+            <Image
+              source={{ uri: selectedImage.toString() }}
+              style={styles.image}
+            />
+          </View>
           {!showConfirmation && (
             <View style={styles.buttonContainer}>
               <TouchableOpacity
@@ -138,7 +142,7 @@ export default function Parser() {
             </View>
           )}
           {isLoading ? (
-            <View style={{ marginTop: 20 }}>
+            <View style={{ marginTop: 40 }}>
               <ActivityIndicator size="large" />
             </View>
           ) : null}
@@ -150,7 +154,7 @@ export default function Parser() {
                 style={styles.button}
                 onPress={() => router.push("/scan-receipt/confirmation")}
               >
-                <Text style={styles.buttonText}>Confirm Ingredients</Text>
+                <Text style={styles.buttonText}>Edit Ingredients</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -166,54 +170,66 @@ export default function Parser() {
   );
 }
 
-const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-    backgroundColor: "#90d4cc",
-  },
-  container: {
-    alignItems: "center",
-    flex: 1,
-    marginVertical: 20,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "100%",
-    paddingHorizontal: 20,
-    marginTop: 20,
-  },
-  button: {
-    backgroundColor: "#006D77",
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  buttonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  image: {
-    width: 300,
-    height: 300,
-    marginVertical: 20,
-  },
-  noImage: {
-    fontSize: 36,
-    textAlign: "center",
-    marginTop: 20,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  body: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginVertical: 15,
-  },
-});
+const getStyles = (theme: Theme) =>
+  StyleSheet.create({
+    scrollView: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    container: {
+      alignItems: "center",
+      flex: 1,
+      marginVertical: 20,
+    },
+    buttonContainer: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      width: "100%",
+      paddingHorizontal: 20,
+      marginTop: 20,
+    },
+    button: {
+      backgroundColor: theme.secondary,
+      borderRadius: 20,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    buttonText: {
+      color: theme.white,
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+    image: {
+      width: 300,
+      height: 300,
+      marginVertical: 20,
+      borderRadius: 20,
+    },
+    imageShadow: {
+      shadowColor: theme.black,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    },
+    noImage: {
+      fontSize: 36,
+      textAlign: "center",
+      marginTop: 20,
+    },
+    header: {
+      fontSize: 24,
+      fontWeight: "bold",
+      textAlign: "center",
+    },
+    body: {
+      fontSize: 16,
+      lineHeight: 24,
+      marginVertical: 15,
+    },
+  });
