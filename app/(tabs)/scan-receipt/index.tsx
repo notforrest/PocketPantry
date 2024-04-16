@@ -13,6 +13,7 @@ import {
   Dimensions,
   Pressable,
   StyleSheet,
+  Button,
 } from "react-native";
 
 export default function Scanner() {
@@ -97,6 +98,10 @@ export default function Scanner() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.screen}>
+        <Button
+          title="Manual"
+          onPress={() => router.push("/scan-receipt/manual")}
+        />
         <Camera
           autoFocus={focus}
           flashMode={flashMode}
