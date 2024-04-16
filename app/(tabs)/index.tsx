@@ -1,12 +1,13 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
+import React from "react";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
 export default function HomePage() {
   const handlePress = () => {
     // Navigate to the Scanner page
-    router.navigate('./scan-receipt');
+    router.navigate("./scan-receipt");
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Pocket Chef!</Text>
@@ -22,27 +23,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flex: 1,
     justifyContent: "center",
-    backgroundColor: '#90d4cc',
+    backgroundColor: "#90d4cc",
   },
   title: {
     fontSize: 40,
-    textAlign: 'center',
+    textAlign: "center",
     fontWeight: "bold",
-    marginBottom: 20, 
+    marginBottom: 20,
+    width: "80%",
   },
   logo: {
-    width: 150, 
-    height: 150, 
-    marginBottom: 20, 
+    width: 150,
+    height: 150,
+    marginBottom: 20,
   },
   button: {
-    backgroundColor: '#006D77', 
+    backgroundColor: "#006D77",
     padding: 10,
     borderRadius: 20,
   },
   buttonText: {
-    color: '#EDF6F9',
+    color: "#EDF6F9",
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });

@@ -1,14 +1,14 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   ActivityIndicator,
-  Button,
   Image,
   ScrollView,
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 
 import { IngredientsContext } from "../../../components/IngredientsContext";
@@ -58,8 +58,9 @@ export default function Parser() {
             setText(parseHEBReceipt(annotations[0].description)); // Parse the detected text
             setShowConfirmation(true);
           } else {
-            //setText("No text detected");
-            setText("");
+            Alert.alert("No Text Detected", "Please try again.", [
+              { text: "OK" },
+            ]);
           }
         })
         .catch((error) => console.error("Error:", error));
@@ -118,7 +119,10 @@ export default function Parser() {
           />
           {!showConfirmation && (
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button} onPress={() => router.back()}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => router.back()}
+              >
                 <Text style={styles.buttonText}>Redo Image</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.button} onPress={parsePicture}>
@@ -135,7 +139,10 @@ export default function Parser() {
             <View>
               <Text style={styles.header}>Your Ingredients</Text>
               <Text style={styles.body}>{text}</Text>
-              <TouchableOpacity style={styles.button} onPress={() => router.push("/scan-receipt/confirmation")}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => router.push("/scan-receipt/confirmation")}
+              >
                 <Text style={styles.buttonText}>Confirm Ingredients</Text>
               </TouchableOpacity>
             </View>
@@ -155,7 +162,7 @@ export default function Parser() {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: '#90d4cc',
+    backgroundColor: "#90d4cc",
   },
   container: {
     alignItems: "center",
@@ -165,22 +172,22 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    width: '100%',
+    width: "100%",
     paddingHorizontal: 20,
     marginTop: 20,
   },
   button: {
-    backgroundColor: '#006D77', 
+    backgroundColor: "#006D77",
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center', 
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   header: {
     fontSize: 24,
@@ -204,4 +211,3 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
 });
-
