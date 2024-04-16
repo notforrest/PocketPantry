@@ -218,7 +218,7 @@ export default function MyPantry() {
         renderItem={({ item, index, section }) => (
           <Collapsible collapsed={isCollapsed[sections.indexOf(section)]}>
             <View style={styles.sectionItem}>
-              <Text style={{ fontSize: 16, width: 290 }}>{item}</Text>
+              <Text style={{ fontSize: 16, width: "60%" }}>{item}</Text>
               <View style={{ flexDirection: "row", gap: 20 }}>
                 <TouchableOpacity
                   style={{ display: showEdits ? "flex" : "none" }}

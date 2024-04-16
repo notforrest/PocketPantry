@@ -2,5 +2,9 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true
-  }
+  },
+  "include": [
+    "**/*",
+    "images.d.ts"  // This line is only necessary if TypeScript does not automatically include your .d.ts files
+  ]
 }
