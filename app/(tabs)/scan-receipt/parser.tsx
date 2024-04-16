@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -19,6 +19,7 @@ export default function Parser() {
   const [text, setText] = useState("");
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   const { addTempIngredient } = useContext(IngredientsContext);
 
@@ -109,8 +110,14 @@ export default function Parser() {
     return items;
   };
 
+  useEffect(() => {
+    setTimeout(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    }, 0); // delay of 0ms, just to push the action to the end of the call stack
+  }, [text]);
+
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView style={styles.scrollView} ref={scrollRef}>
       {selectedImage ? (
         <View style={styles.container}>
           <Image
@@ -167,7 +174,7 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     flex: 1,
-    marginTop: 20,
+    marginVertical: 20,
   },
   buttonContainer: {
     flexDirection: "row",
@@ -189,12 +196,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginVertical: 10,
-    textAlign: "center",
-  },
   image: {
     width: 300,
     height: 300,
@@ -205,9 +206,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
   },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
   body: {
     fontSize: 16,
     lineHeight: 24,
-    marginVertical: 10,
+    marginVertical: 15,
   },
 });
