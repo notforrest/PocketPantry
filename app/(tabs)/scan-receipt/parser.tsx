@@ -1,24 +1,27 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useContext, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Button,
   Image,
   ScrollView,
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 
-import { IngredientsContext } from "../../../components/IngredientsContext";
 import { API_KEY } from "../../../config";
+import { IngredientsContext } from "../../../utils/IngredientsContext";
+import { Theme, useTheme } from "../../../utils/ThemeProvider";
 
 export default function Parser() {
+  const styles = getStyles(useTheme());
   const { selectedImage } = useLocalSearchParams();
   const [text, setText] = useState("");
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   const { addTempIngredient } = useContext(IngredientsContext);
 
@@ -58,8 +61,9 @@ export default function Parser() {
             setText(parseHEBReceipt(annotations[0].description)); // Parse the detected text
             setShowConfirmation(true);
           } else {
-            //setText("No text detected");
-            setText("");
+            Alert.alert("No Text Detected", "Please try again.", [
+              { text: "OK" },
+            ]);
           }
         })
         .catch((error) => console.error("Error:", error));
@@ -108,17 +112,28 @@ export default function Parser() {
     return items;
   };
 
+  useEffect(() => {
+    setTimeout(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    }, 0); // delay of 0ms, just to push the action to the end of the call stack
+  }, [text]);
+
   return (
-    <ScrollView style={styles.scrollView}>
+    <ScrollView style={styles.scrollView} ref={scrollRef}>
       {selectedImage ? (
         <View style={styles.container}>
-          <Image
-            source={{ uri: selectedImage.toString() }}
-            style={styles.image}
-          />
+          <View style={styles.imageShadow}>
+            <Image
+              source={{ uri: selectedImage.toString() }}
+              style={styles.image}
+            />
+          </View>
           {!showConfirmation && (
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.button} onPress={() => router.back()}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => router.back()}
+              >
                 <Text style={styles.buttonText}>Redo Image</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.button} onPress={parsePicture}>
@@ -127,7 +142,7 @@ export default function Parser() {
             </View>
           )}
           {isLoading ? (
-            <View style={{ marginTop: 20 }}>
+            <View style={{ marginTop: 40 }}>
               <ActivityIndicator size="large" />
             </View>
           ) : null}
@@ -135,8 +150,11 @@ export default function Parser() {
             <View>
               <Text style={styles.header}>Your Ingredients</Text>
               <Text style={styles.body}>{text}</Text>
-              <TouchableOpacity style={styles.button} onPress={() => router.push("/scan-receipt/confirmation")}>
-                <Text style={styles.buttonText}>Confirm Ingredients</Text>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => router.push("/scan-receipt/confirmation")}
+              >
+                <Text style={styles.buttonText}>Edit Ingredients</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -152,56 +170,66 @@ export default function Parser() {
   );
 }
 
-const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-    backgroundColor: '#90d4cc',
-  },
-  container: {
-    alignItems: "center",
-    flex: 1,
-    marginTop: 20,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: '100%',
-    paddingHorizontal: 20,
-    marginTop: 20,
-  },
-  button: {
-    backgroundColor: '#006D77', 
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    justifyContent: 'center', 
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginVertical: 10,
-    textAlign: "center",
-  },
-  image: {
-    width: 300,
-    height: 300,
-    marginVertical: 20,
-  },
-  noImage: {
-    fontSize: 36,
-    textAlign: "center",
-    marginTop: 20,
-  },
-  body: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginVertical: 10,
-  },
-});
-
+const getStyles = (theme: Theme) =>
+  StyleSheet.create({
+    scrollView: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    container: {
+      alignItems: "center",
+      flex: 1,
+      marginVertical: 20,
+    },
+    buttonContainer: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      width: "100%",
+      paddingHorizontal: 20,
+      marginTop: 20,
+    },
+    button: {
+      backgroundColor: theme.secondary,
+      borderRadius: 20,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    buttonText: {
+      color: theme.white,
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+    image: {
+      width: 300,
+      height: 300,
+      marginVertical: 20,
+      borderRadius: 20,
+    },
+    imageShadow: {
+      shadowColor: theme.black,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    },
+    noImage: {
+      fontSize: 36,
+      textAlign: "center",
+      marginTop: 20,
+    },
+    header: {
+      fontSize: 24,
+      fontWeight: "bold",
+      textAlign: "center",
+    },
+    body: {
+      fontSize: 16,
+      lineHeight: 24,
+      marginVertical: 15,
+    },
+  });

@@ -10,26 +10,40 @@ import {
   View,
 } from "react-native";
 
-import { IngredientsContext } from "../../../components/IngredientsContext";
+import { IngredientsContext } from "../../../utils/IngredientsContext";
+import { Theme, useTheme } from "../../../utils/ThemeProvider";
 
 export default function ConfirmPage() {
+  const styles = getStyles(useTheme());
   const [ingredientIndex, setIngredientIndex] = useState<number>(0);
-  const [confirmedIngredients, setConfirmedIngredients] = useState<string[]>([]);
+  const [confirmedIngredients, setConfirmedIngredients] = useState<string[]>(
+    [],
+  );
   const [rejectedIngredients, setRejectedIngredients] = useState<string[]>([]);
   const [itemsVisible, setItemsVisible] = useState<boolean>(true);
 
-  const { tempIngredients: ingredients, addNewIngredients, clearTempIngredients } = useContext(IngredientsContext);
+  const {
+    tempIngredients: ingredients,
+    addNewIngredients,
+    clearTempIngredients,
+  } = useContext(IngredientsContext);
 
   const handleDelete = (index: number) => {
     const newConfirmedIngredients = [...confirmedIngredients];
-    setRejectedIngredients([...rejectedIngredients, newConfirmedIngredients[index]]);
+    setRejectedIngredients([
+      ...rejectedIngredients,
+      newConfirmedIngredients[index],
+    ]);
     newConfirmedIngredients.splice(index, 1);
     setConfirmedIngredients(newConfirmedIngredients);
   };
 
   const handleUndo = (index: number) => {
     const newRejectedIngredients = [...rejectedIngredients];
-    setConfirmedIngredients([...confirmedIngredients, newRejectedIngredients[index]]);
+    setConfirmedIngredients([
+      ...confirmedIngredients,
+      newRejectedIngredients[index],
+    ]);
     newRejectedIngredients.splice(index, 1);
     setRejectedIngredients(newRejectedIngredients);
   };
@@ -71,22 +85,40 @@ export default function ConfirmPage() {
             <>
               <Text style={styles.body}>{ingredients[ingredientIndex]}</Text>
               <View style={styles.buttons}>
-                <TouchableOpacity style={styles.rejectAcceptButton} onPress={() => {
-                    setRejectedIngredients([...rejectedIngredients, ingredients[ingredientIndex]]);
+                <TouchableOpacity
+                  style={styles.rejectAcceptButton}
+                  onPress={() => {
+                    setRejectedIngredients([
+                      ...rejectedIngredients,
+                      ingredients[ingredientIndex],
+                    ]);
                     setIngredientIndex(ingredientIndex + 1);
-                  }}>
+                  }}
+                >
                   <Text style={styles.buttonText}>Reject</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.rejectAcceptButton} onPress={() => {
-                    setConfirmedIngredients([...confirmedIngredients, ingredients[ingredientIndex]]);
+                <TouchableOpacity
+                  style={styles.rejectAcceptButton}
+                  onPress={() => {
+                    setConfirmedIngredients([
+                      ...confirmedIngredients,
+                      ingredients[ingredientIndex],
+                    ]);
                     setIngredientIndex(ingredientIndex + 1);
-                  }}>
+                  }}
+                >
                   <Text style={styles.buttonText}>Accept</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.rejectAcceptButton} onPress={() => {
-                    setConfirmedIngredients([...confirmedIngredients, ...ingredients.slice(ingredientIndex)]);
+                <TouchableOpacity
+                  style={styles.rejectAcceptButton}
+                  onPress={() => {
+                    setConfirmedIngredients([
+                      ...confirmedIngredients,
+                      ...ingredients.slice(ingredientIndex),
+                    ]);
                     setIngredientIndex(ingredients.length);
-                  }}>
+                  }}
+                >
                   <Text style={styles.buttonText}>Accept All</Text>
                 </TouchableOpacity>
               </View>
@@ -103,7 +135,9 @@ export default function ConfirmPage() {
           <View style={styles.item}>
             <Text style={{ width: "80%" }}>{item}</Text>
             <View style={{ flexDirection: "row", gap: 20 }}>
-              <TouchableOpacity onPress={() => handleEdit(index, section.title, item)}>
+              <TouchableOpacity
+                onPress={() => handleEdit(index, section.title, item)}
+              >
                 <Ionicons name="pencil" size={20} color="black" />
               </TouchableOpacity>
               {section.title === "Accepted Ingredients" ? (
@@ -140,62 +174,63 @@ export default function ConfirmPage() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#90d4cc', 
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginVertical: 24,
-    textAlign: "center",
-  },
-  body: {
-    fontSize: 18,
-    textAlign: "center",
-  },
-  buttons: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginVertical: 16,
-  },
-  rejectAcceptButton: {
-    backgroundColor: '#006D77',
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-  },
-  buttonText: {
-    color: '#FFFFFF',  // White text
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  sectionHeader: {
-    backgroundColor: "#006D77", 
-    color: '#FFFFFF', 
-    fontSize: 16,
-    fontWeight: "bold",
-    padding: 10,
-    textAlign: "center",
-  },
-  item: {
-    backgroundColor: '#FFFFFF', 
-    padding: 10,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  doneButton: {
-    backgroundColor: '#006D77',
-    paddingVertical: 10,
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-  },
-  doneButtonText: {
-    color: '#FFFFFF',  
-    fontSize: 24,
-    textAlign: "center",
-  },
-});
+const getStyles = (theme: Theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.background,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: "bold",
+      marginVertical: 24,
+      textAlign: "center",
+    },
+    body: {
+      fontSize: 18,
+      textAlign: "center",
+    },
+    buttons: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      marginVertical: 16,
+    },
+    rejectAcceptButton: {
+      backgroundColor: theme.secondary,
+      borderRadius: 20,
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+    },
+    buttonText: {
+      color: theme.white,
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+    sectionHeader: {
+      backgroundColor: theme.primarydark,
+      color: theme.black,
+      fontSize: 16,
+      fontWeight: "bold",
+      padding: 10,
+      textAlign: "center",
+    },
+    item: {
+      backgroundColor: theme.background,
+      padding: 10,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    doneButton: {
+      backgroundColor: theme.secondary,
+      paddingVertical: 10,
+      position: "absolute",
+      bottom: 0,
+      width: "100%",
+    },
+    doneButtonText: {
+      color: theme.white,
+      fontSize: 24,
+      textAlign: "center",
+    },
+  });

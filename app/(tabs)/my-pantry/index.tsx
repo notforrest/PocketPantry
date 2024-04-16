@@ -15,7 +15,8 @@ import {
 } from "react-native";
 import Collapsible from "react-native-collapsible";
 
-import { IngredientsContext } from "../../../components/IngredientsContext";
+import { IngredientsContext } from "../../../utils/IngredientsContext";
+import { Theme, useTheme } from "../../../utils/ThemeProvider";
 
 type Section = {
   id: number;
@@ -24,6 +25,7 @@ type Section = {
 };
 
 export default function MyPantry() {
+  const styles = getStyles(useTheme());
   const [sections, setSections] = useState<Section[]>([
     { id: 1, title: "Refrigerator", data: [] },
     { id: 2, title: "Kitchen Counter", data: [] },
@@ -386,83 +388,84 @@ export default function MyPantry() {
   );
 }
 
-const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    gap: 20,
-    justifyContent: "center",
-    marginTop: 100,
-  },
-  title: {
-    fontSize: 40,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  list: {
-    flex: 1,
-    marginTop: 20,
-  },
-  sectionHeader: {
-    alignItems: "center",
-    backgroundColor: "mintcream",
-    flexDirection: "row",
-    fontSize: 20,
-    fontWeight: "bold",
-    justifyContent: "space-between",
-    paddingLeft: 10,
-    paddingRight: 20,
-    paddingVertical: 3,
-    textAlign: "center",
-  },
-  sectionUnsorted: {
-    backgroundColor: "mistyrose",
-  },
-  sectionHeaderButtons: {
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 10,
-  },
-  sectionItem: {
-    alignItems: "center",
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-  },
-  centered: {
-    alignItems: "center",
-    flex: 1,
-    justifyContent: "center",
-  },
-  modal: {
-    alignItems: "center",
-    alignSelf: "center",
-    backgroundColor: "white",
-    borderRadius: 20,
-    paddingHorizontal: 35,
-    paddingTop: 35,
-    paddingBottom: 25,
-    shadowOffset: {
-      width: 0,
-      height: 2,
+const getStyles = (theme: Theme) =>
+  StyleSheet.create({
+    page: {
+      backgroundColor: theme.background,
+      flex: 1,
+      gap: 20,
+      justifyContent: "center",
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-  modalText: {
-    borderColor: "gray",
-    borderRadius: 20,
-    borderWidth: 1,
-    fontSize: 18,
-    marginBottom: 20,
-    padding: 10,
-    width: 300,
-  },
-  buttons: {
-    alignItems: "center",
-    alignSelf: "center",
-    flexDirection: "row",
-    gap: 40,
-  },
-});
+    title: {
+      fontSize: 40,
+      fontWeight: "bold",
+      textAlign: "center",
+    },
+    list: {
+      flex: 1,
+      marginTop: 20,
+    },
+    sectionHeader: {
+      alignItems: "center",
+      backgroundColor: theme.white,
+      flexDirection: "row",
+      fontSize: 20,
+      fontWeight: "bold",
+      justifyContent: "space-between",
+      paddingLeft: 10,
+      paddingRight: 20,
+      paddingVertical: 3,
+      textAlign: "center",
+    },
+    sectionUnsorted: {
+      backgroundColor: "mistyrose",
+    },
+    sectionHeaderButtons: {
+      alignItems: "center",
+      flexDirection: "row",
+      gap: 10,
+    },
+    sectionItem: {
+      alignItems: "center",
+      flex: 1,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+    },
+    centered: {
+      alignItems: "center",
+      flex: 1,
+      justifyContent: "center",
+    },
+    modal: {
+      alignItems: "center",
+      alignSelf: "center",
+      backgroundColor: "white",
+      borderRadius: 20,
+      paddingHorizontal: 35,
+      paddingTop: 35,
+      paddingBottom: 25,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+    },
+    modalText: {
+      borderColor: "gray",
+      borderRadius: 20,
+      borderWidth: 1,
+      fontSize: 18,
+      marginBottom: 20,
+      padding: 10,
+      width: 300,
+    },
+    buttons: {
+      alignItems: "center",
+      alignSelf: "center",
+      flexDirection: "row",
+      gap: 40,
+    },
+  });
