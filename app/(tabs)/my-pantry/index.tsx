@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Button,
@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import Collapsible from "react-native-collapsible";
 
+import { PantryOnboarding } from "../../../components/pantry-onboarding";
 import { IngredientsContext } from "../../../utils/IngredientsContext";
 import { Theme, useTheme } from "../../../utils/ThemeProvider";
 
@@ -38,6 +39,7 @@ export default function MyPantry() {
   const [locationName, setLocationName] = useState<string>("");
   const [showDeletes, setShowDeletes] = useState<boolean>(false);
   const [showEdits, setShowEdits] = useState<boolean>(false);
+  const [step, setStep] = useState(0);
 
   const { newIngredients, clearNewIngredients } =
     useContext(IngredientsContext);
@@ -186,27 +188,86 @@ export default function MyPantry() {
     }
   }, [sections]);
 
+  const [btnLayouts, setBtnLayouts] = useState([
+    { x: 0, y: 0, width: 0, height: 0 },
+    { x: 0, y: 0, width: 0, height: 0 },
+    { x: 0, y: 0, width: 0, height: 0 },
+    { x: 0, y: 0, width: 0, height: 0 },
+    { x: 0, y: 0, width: 0, height: 0 },
+  ]);
+
+  const btnRefs = [
+    useRef(null),
+    useRef(null),
+    useRef(null),
+    useRef(null),
+    useRef(null),
+  ];
+
+  useEffect(() => {
+    const newLayouts = [...btnLayouts];
+
+    setTimeout(() => {
+      btnRefs.forEach((ref, i) => {
+        if (ref.current) {
+          (ref.current as any).measure(
+            (
+              _x: number,
+              _y: number,
+              width: number,
+              height: number,
+              pageX: number,
+              pageY: number,
+            ) => {
+              newLayouts[i] = { x: pageX, y: pageY, width, height };
+            },
+          );
+        }
+      });
+    }, 1000);
+
+    setBtnLayouts(newLayouts);
+  }, []);
+
   return (
     <SafeAreaView style={styles.page}>
+      <PantryOnboarding btnLayouts={btnLayouts} step={step} setStep={setStep} />
+      <TouchableOpacity
+        onPress={() => setStep(0)}
+        style={{ position: "absolute", right: "10%", top: "9%", zIndex: 1 }}
+      >
+        <Ionicons name="help-circle" size={24} color="black" />
+      </TouchableOpacity>
       <Text style={styles.title}>My Pantry</Text>
       <View style={styles.buttons}>
         <TouchableOpacity
           onPress={() => setIsCollapsed(Array(sections.length).fill(false))}
+          ref={btnRefs[0]}
         >
           <Ionicons name="chevron-expand" size={24} color="black" />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setIsCollapsed(Array(sections.length).fill(true))}
+          ref={btnRefs[1]}
         >
           <Ionicons name="chevron-collapse" size={24} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setAddLocationModalVisible(true)}>
+        <TouchableOpacity
+          onPress={() => setAddLocationModalVisible(true)}
+          ref={btnRefs[2]}
+        >
           <Ionicons name="add" size={24} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setShowEdits(!showEdits)}>
+        <TouchableOpacity
+          onPress={() => setShowEdits(!showEdits)}
+          ref={btnRefs[3]}
+        >
           <Ionicons name="pencil" size={20} color="black" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setShowDeletes(!showDeletes)}>
+        <TouchableOpacity
+          onPress={() => setShowDeletes(!showDeletes)}
+          ref={btnRefs[4]}
+        >
           <Ionicons
             name={showDeletes ? "trash-outline" : "trash"}
             size={20}
