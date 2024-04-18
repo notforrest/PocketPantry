@@ -189,12 +189,7 @@ const getStyles = (theme: Theme) =>
       marginTop: 20,
     },
     button: {
-      backgroundColor: theme.secondary,
-      borderRadius: 20,
-      paddingVertical: 10,
-      paddingHorizontal: 20,
-      alignItems: "center",
-      justifyContent: "center",
+      ...theme.button,
     },
     buttonText: {
       color: theme.white,

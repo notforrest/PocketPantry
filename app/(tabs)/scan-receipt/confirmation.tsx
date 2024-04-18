@@ -68,9 +68,9 @@ export default function ConfirmPage() {
     );
   };
 
+  // Add all of the ingredients from parser to the screen
   useEffect(() => {
     setConfirmedIngredients(ingredients);
-    console.log(ingredients);
   }, []);
 
   return (
