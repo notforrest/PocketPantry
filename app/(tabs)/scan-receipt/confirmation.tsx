@@ -15,12 +15,10 @@ import { Theme, useTheme } from "../../../utils/ThemeProvider";
 
 export default function ConfirmPage() {
   const styles = getStyles(useTheme());
-  const [ingredientIndex, setIngredientIndex] = useState<number>(0);
   const [confirmedIngredients, setConfirmedIngredients] = useState<string[]>(
     [],
   );
   const [rejectedIngredients, setRejectedIngredients] = useState<string[]>([]);
-  const [itemsVisible, setItemsVisible] = useState<boolean>(true);
 
   const {
     tempIngredients: ingredients,
@@ -54,7 +52,7 @@ export default function ConfirmPage() {
       "Enter the new ingredient",
       (newIngredient) => {
         if (newIngredient) {
-          if (section === "Accepted Ingredients") {
+          if (section !== "Trash") {
             const newConfirmedIngredients = [...confirmedIngredients];
             newConfirmedIngredients[index] = newIngredient;
             setConfirmedIngredients(newConfirmedIngredients);
@@ -71,105 +69,76 @@ export default function ConfirmPage() {
   };
 
   useEffect(() => {
-    if (ingredientIndex === ingredients?.length) {
-      setItemsVisible(false);
-    }
-  });
+    setConfirmedIngredients(ingredients);
+    console.log(ingredients);
+  }, []);
 
   return (
     <View style={styles.container}>
       {ingredients && (
         <View>
           <Text style={styles.title}>Confirm Ingredients</Text>
-          {itemsVisible && (
-            <>
-              <Text style={styles.body}>{ingredients[ingredientIndex]}</Text>
-              <View style={styles.buttons}>
-                <TouchableOpacity
-                  style={styles.rejectAcceptButton}
-                  onPress={() => {
-                    setRejectedIngredients([
-                      ...rejectedIngredients,
-                      ingredients[ingredientIndex],
-                    ]);
-                    setIngredientIndex(ingredientIndex + 1);
-                  }}
-                >
-                  <Text style={styles.buttonText}>Reject</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.rejectAcceptButton}
-                  onPress={() => {
-                    setConfirmedIngredients([
-                      ...confirmedIngredients,
-                      ingredients[ingredientIndex],
-                    ]);
-                    setIngredientIndex(ingredientIndex + 1);
-                  }}
-                >
-                  <Text style={styles.buttonText}>Accept</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.rejectAcceptButton}
-                  onPress={() => {
-                    setConfirmedIngredients([
-                      ...confirmedIngredients,
-                      ...ingredients.slice(ingredientIndex),
-                    ]);
-                    setIngredientIndex(ingredients.length);
-                  }}
-                >
-                  <Text style={styles.buttonText}>Accept All</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          )}
+          <Text style={styles.titleDesc}>
+            Click <Ionicons name="pencil" size={14} color="black" />
+            {" to edit\nClick"}{" "}
+            <Ionicons name="trash" size={14} color="black" />
+            {" to delete"}
+          </Text>
         </View>
       )}
-      <SectionList
-        sections={[
-          { title: "Accepted Ingredients", data: confirmedIngredients },
-          { title: "Rejected Ingredients", data: rejectedIngredients },
-        ]}
-        renderItem={({ item, index, section }) => (
-          <View style={styles.item}>
-            <Text style={{ width: "80%" }}>{item}</Text>
-            <View style={{ flexDirection: "row", gap: 20 }}>
-              <TouchableOpacity
-                onPress={() => handleEdit(index, section.title, item)}
-              >
-                <Ionicons name="pencil" size={20} color="black" />
-              </TouchableOpacity>
-              {section.title === "Accepted Ingredients" ? (
-                <TouchableOpacity onPress={() => handleDelete(index)}>
-                  <Ionicons name="trash" size={20} color="black" />
+      <View style={{ flex: 1 }}>
+        <SectionList
+          sections={[
+            { title: "To Pantry", data: confirmedIngredients },
+            { title: "Trash", data: rejectedIngredients },
+          ]}
+          renderItem={({ item, index, section }) => (
+            <View style={styles.item}>
+              <Text style={{ width: "80%" }}>{item}</Text>
+              <View style={{ flexDirection: "row", gap: 20 }}>
+                <TouchableOpacity
+                  onPress={() => handleEdit(index, section.title, item)}
+                >
+                  <Ionicons name="pencil" size={20} color="black" />
                 </TouchableOpacity>
-              ) : (
-                <TouchableOpacity onPress={() => handleUndo(index)}>
-                  <Ionicons name="arrow-undo" size={20} color="black" />
-                </TouchableOpacity>
-              )}
+                {section.title === "Trash" ? (
+                  <TouchableOpacity onPress={() => handleUndo(index)}>
+                    <Ionicons name="arrow-undo" size={20} color="black" />
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity onPress={() => handleDelete(index)}>
+                    <Ionicons name="trash" size={20} color="black" />
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
-          </View>
-        )}
-        renderSectionHeader={({ section }) => (
-          <Text style={styles.sectionHeader}>{section.title}</Text>
-        )}
-        keyExtractor={(item, index) => item + index}
-        style={{ flex: 1 }}
-      />
-      <TouchableOpacity
-        style={styles.doneButton}
-        onPress={() => {
-          addNewIngredients(confirmedIngredients);
-          clearTempIngredients();
-          router.navigate("/my-pantry");
-          router.dismissAll();
-        }}
-        disabled={ingredientIndex !== ingredients?.length}
-      >
-        <Text style={styles.doneButtonText}>Done</Text>
-      </TouchableOpacity>
+          )}
+          renderSectionHeader={({ section }) => (
+            <Text
+              style={
+                section.title === "Trash"
+                  ? styles.sectionHeaderTrash
+                  : styles.sectionHeader
+              }
+            >
+              {section.title}
+            </Text>
+          )}
+          keyExtractor={(item, index) => item + index}
+          style={{ flex: 1 }}
+        />
+        <TouchableOpacity
+          style={styles.doneButton}
+          onPress={() => {
+            addNewIngredients(confirmedIngredients);
+            clearTempIngredients();
+            router.navigate("/my-pantry");
+            router.dismissAll();
+          }}
+        >
+          <Text style={styles.doneButtonText}>Add to Pantry</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -183,28 +152,18 @@ const getStyles = (theme: Theme) =>
     title: {
       fontSize: 24,
       fontWeight: "bold",
-      marginVertical: 24,
+      marginTop: 24,
       textAlign: "center",
+    },
+    titleDesc: {
+      fontSize: 16,
+      marginVertical: 16,
+      textAlign: "center",
+      lineHeight: 30,
     },
     body: {
       fontSize: 18,
       textAlign: "center",
-    },
-    buttons: {
-      flexDirection: "row",
-      justifyContent: "space-around",
-      marginVertical: 16,
-    },
-    rejectAcceptButton: {
-      backgroundColor: theme.secondary,
-      borderRadius: 20,
-      paddingVertical: 10,
-      paddingHorizontal: 20,
-    },
-    buttonText: {
-      color: theme.white,
-      fontSize: 16,
-      fontWeight: "bold",
     },
     sectionHeader: {
       backgroundColor: theme.primarydark,
@@ -214,19 +173,26 @@ const getStyles = (theme: Theme) =>
       padding: 10,
       textAlign: "center",
     },
-    item: {
-      backgroundColor: theme.background,
+    sectionHeaderTrash: {
+      backgroundColor: theme.gray,
+      color: theme.black,
+      fontSize: 16,
+      fontWeight: "bold",
       padding: 10,
+      textAlign: "center",
+    },
+    item: {
+      alignItems: "center",
+      backgroundColor: theme.background,
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "center",
+      padding: 10,
     },
     doneButton: {
       backgroundColor: theme.secondary,
+      flex: 0.05,
+      justifyContent: "center",
       paddingVertical: 10,
-      position: "absolute",
-      bottom: 0,
-      width: "100%",
     },
     doneButtonText: {
       color: theme.white,

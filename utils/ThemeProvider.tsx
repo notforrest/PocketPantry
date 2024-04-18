@@ -9,8 +9,10 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     secondary: "#006D77",
     secondarylight: "#00838F",
     background: "#83C5BE",
+    error: "#E29578",
     white: "#EDF6F9",
     black: "#000",
+    gray: "darkgray",
     // Add more colors as needed
   };
 
@@ -26,8 +28,10 @@ export interface Theme {
   secondary: string;
   secondarylight: string;
   background: string;
+  error: string;
   white: string;
   black: string;
+  gray: string;
   // Add more properties as needed
 }
 
