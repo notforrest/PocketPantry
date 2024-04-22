@@ -21,9 +21,10 @@ export default function Parser() {
   const [text, setText] = useState("");
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [localIngredients, setLocalIngredients] = useState<string[]>([]);
   const scrollRef = useRef<ScrollView>(null);
 
-  const { addTempIngredient } = useContext(IngredientsContext);
+  const { addTempIngredients } = useContext(IngredientsContext);
 
   const parsePicture = async () => {
     if (selectedImage) {
@@ -105,7 +106,7 @@ export default function Parser() {
     const items = matches
       .map((item, index) => {
         const [, , name] = item;
-        addTempIngredient(name);
+        setLocalIngredients((prevIngredients) => [...prevIngredients, name]);
         return `${index + 1}) ${name}`;
       })
       .join("\n");
@@ -152,7 +153,10 @@ export default function Parser() {
               <Text style={styles.body}>{text}</Text>
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => router.push("/scan-receipt/confirmation")}
+                onPress={() => {
+                  addTempIngredients(localIngredients);
+                  router.push("/scan-receipt/confirmation");
+                }}
               >
                 <Text style={styles.buttonText}>Edit Ingredients</Text>
               </TouchableOpacity>

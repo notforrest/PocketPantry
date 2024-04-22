@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useContext, useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   Alert,
   TouchableOpacity,
@@ -67,6 +67,16 @@ export default function ConfirmPage() {
       oldName,
     );
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        clearTempIngredients();
+      };
+
+      return onBackPress;
+    }, []),
+  );
 
   // Add all of the ingredients from parser to the screen
   useEffect(() => {
