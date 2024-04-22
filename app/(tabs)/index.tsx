@@ -38,10 +38,7 @@ const getStyles = (theme: Theme) =>
       width: "80%",
     },
     button: {
-      backgroundColor: theme.secondary,
-      paddingVertical: 10,
-      paddingHorizontal: 20,
-      borderRadius: 20,
+      ...theme.button,
     },
     buttonText: {
       color: theme.white,
