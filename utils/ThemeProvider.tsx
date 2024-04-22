@@ -1,4 +1,5 @@
 import React, { createContext, useContext } from "react";
+import { ViewStyle } from "react-native";
 
 // Create the theme provider for the top level
 const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
@@ -9,10 +10,24 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     secondary: "#006D77",
     secondarylight: "#00838F",
     background: "#83C5BE",
+    error: "#E29578",
     white: "#EDF6F9",
     black: "#000",
-    // Add more colors as needed
+    gray: "darkgray",
+
+    button: {
+      alignItems: "center",
+      borderRadius: 100,
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      shadowColor: "black",
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+    },
   };
+
+  theme.button.backgroundColor = theme.secondary;
 
   return (
     <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>
@@ -21,14 +36,19 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
 // Theme type
 export interface Theme {
+  // Colors
   primary: string;
   primarydark: string;
   secondary: string;
   secondarylight: string;
   background: string;
+  error: string;
   white: string;
   black: string;
-  // Add more properties as needed
+  gray: string;
+
+  // Default Component Styles
+  button: ViewStyle;
 }
 
 // Create the theme context

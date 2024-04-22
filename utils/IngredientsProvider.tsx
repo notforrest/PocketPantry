@@ -22,11 +22,11 @@ const IngredientsProvider = ({ children }: { children: React.ReactNode }) => {
     );
   };
 
-  // Add ingredient to temp list for Parser.tsx when parsing the receipt
-  const addTempIngredient = (tempIngredient: string) => {
+  // Add ingredients to temp list for Parser.tsx when parsing the receipt
+  const addTempIngredients = (tempIngredients: string[]) => {
     setTempIngredients((prevTempIngredients) => [
       ...prevTempIngredients,
-      tempIngredient,
+      ...tempIngredients,
     ]);
   };
 
@@ -55,7 +55,7 @@ const IngredientsProvider = ({ children }: { children: React.ReactNode }) => {
     newIngredients,
     addIngredients,
     removeIngredient,
-    addTempIngredient,
+    addTempIngredients,
     clearTempIngredients,
     addNewIngredients,
     clearNewIngredients,
