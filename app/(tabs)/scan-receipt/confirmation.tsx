@@ -201,7 +201,7 @@ const getStyles = (theme: Theme) =>
     },
     doneButton: {
       backgroundColor: theme.secondary,
-      flex: 0.05,
+      flex: 0.06,
       justifyContent: "center",
       paddingVertical: 10,
     },
