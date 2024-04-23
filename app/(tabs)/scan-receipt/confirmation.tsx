@@ -98,6 +98,7 @@ export default function ConfirmPage() {
       )}
       <View style={{ flex: 1 }}>
         <SectionList
+          contentContainerStyle={{ paddingBottom: 10 }}
           sections={[
             { title: "To Pantry", data: confirmedIngredients },
             { title: "Trash", data: rejectedIngredients },
