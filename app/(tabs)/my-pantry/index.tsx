@@ -281,6 +281,7 @@ export default function MyPantry() {
         </TouchableOpacity>
       </View>
       <SectionList
+        contentContainerStyle={{ paddingBottom: 10 }}
         style={{ flex: 1 }}
         sections={sections}
         renderItem={({ item, index, section }) => (
@@ -459,7 +460,6 @@ const getStyles = (theme: Theme) =>
     page: {
       backgroundColor: theme.background,
       flex: 1,
-      gap: 20,
       justifyContent: "center",
     },
     title: {
@@ -533,5 +533,6 @@ const getStyles = (theme: Theme) =>
       alignSelf: "center",
       flexDirection: "row",
       gap: 40,
+      marginVertical: 20,
     },
   });

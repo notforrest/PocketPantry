@@ -98,6 +98,7 @@ export default function ConfirmPage() {
       )}
       <View style={{ flex: 1 }}>
         <SectionList
+          contentContainerStyle={{ paddingBottom: 10 }}
           sections={[
             { title: "To Pantry", data: confirmedIngredients },
             { title: "Trash", data: rejectedIngredients },
@@ -200,7 +201,7 @@ const getStyles = (theme: Theme) =>
     },
     doneButton: {
       backgroundColor: theme.secondary,
-      flex: 0.05,
+      flex: 0.06,
       justifyContent: "center",
       paddingVertical: 10,
     },
