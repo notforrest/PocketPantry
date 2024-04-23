@@ -13,16 +13,20 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import CalendarPicker from "react-native-calendar-picker";
 import Collapsible from "react-native-collapsible";
 
 import { PantryOnboarding } from "../../../components/pantry-onboarding";
-import { IngredientsContext } from "../../../utils/IngredientsContext";
+import {
+  Ingredient,
+  IngredientsContext,
+} from "../../../utils/IngredientsContext";
 import { Theme, useTheme } from "../../../utils/ThemeProvider";
 
 type Section = {
   id: number;
   title: string;
-  data: string[];
+  data: Ingredient[];
 };
 
 export default function MyPantry() {
@@ -40,6 +44,12 @@ export default function MyPantry() {
   const [showDeletes, setShowDeletes] = useState<boolean>(false);
   const [showEdits, setShowEdits] = useState<boolean>(false);
   const [step, setStep] = useState(0);
+  const [isCalendarPickerVisible, setIsCalendarPickerVisible] =
+    useState<boolean>(false);
+  const [selectedIngredient, setSelectedIngredient] = useState<{
+    section: Section;
+    index: number;
+  } | null>(null);
 
   const { newIngredients, clearNewIngredients } =
     useContext(IngredientsContext);
@@ -68,11 +78,11 @@ export default function MyPantry() {
   const handleDeleteIngredient = (
     section: Section,
     index: number,
-    item: string,
+    item: Ingredient,
   ) => {
     Alert.alert(
       "Delete Ingredient",
-      `Are you sure you want to delete "${item}"?`,
+      `Are you sure you want to delete "${item.name}"?`,
       [
         {
           text: "Cancel",
@@ -95,7 +105,7 @@ export default function MyPantry() {
     );
   };
 
-  const addSection = (title: string, data: string[] = []) => {
+  const addSection = (title: string, data: Ingredient[] = []) => {
     setSections((prevSections) => [
       ...prevSections,
       { id: prevSections.length + 1, title, data },
@@ -120,7 +130,7 @@ export default function MyPantry() {
                 ? {
                     ...section,
                     data: section.data.map((item, j) =>
-                      j === itemIndex ? newName : item,
+                      j === itemIndex ? { ...item, name: newName } : item,
                     ),
                   }
                 : section,
@@ -129,8 +139,13 @@ export default function MyPantry() {
         }
       },
       "plain-text",
-      sections[sectionIndex].data[itemIndex],
+      sections[sectionIndex].data[itemIndex].name,
     );
+  };
+
+  const editItemExpiryDate = (section: Section, index: number) => {
+    setSelectedIngredient({ section, index });
+    setIsCalendarPickerVisible(true);
   };
 
   const editSection = (sectionIndex: number, oldName: string) => {
@@ -234,9 +249,67 @@ export default function MyPantry() {
     setBtnLayouts(newLayouts);
   }, []);
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear().toString().slice(-2);
+    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Months are 0 based
+    const day = date.getDate().toString().padStart(2, "0");
+
+    return `${month}-${day}-${year}`;
+  };
+
   return (
     <SafeAreaView style={styles.page}>
       <PantryOnboarding btnLayouts={btnLayouts} step={step} setStep={setStep} />
+      <Modal
+        visible={isCalendarPickerVisible}
+        animationType="slide"
+        transparent
+      >
+        <View style={styles.centered}>
+          <View style={styles.calendarModal}>
+            <TouchableOpacity
+              onPress={() => setIsCalendarPickerVisible(false)}
+              style={{ position: "absolute", right: 10, top: 10 }}
+            >
+              <Ionicons name="close" size={24} color="gray" />
+            </TouchableOpacity>
+            <Text
+              style={{ fontSize: 20, marginBottom: 20, textAlign: "center" }}
+            >
+              Select Expiry Date
+            </Text>
+            <CalendarPicker
+              onDateChange={(date) => {
+                if (selectedIngredient) {
+                  const { section, index } = selectedIngredient;
+                  setSections((prevSections) =>
+                    prevSections.map((s) =>
+                      s.id === section.id
+                        ? {
+                            ...s,
+                            data: s.data.map((item, i) =>
+                              i === index
+                                ? {
+                                    ...item,
+                                    expiryDate: formatDate(date.toString()),
+                                  }
+                                : item,
+                            ),
+                          }
+                        : s,
+                    ),
+                  );
+                }
+                setSelectedIngredient(null);
+                setIsCalendarPickerVisible(false);
+              }}
+              width={300}
+              scrollable
+            />
+          </View>
+        </View>
+      </Modal>
       <TouchableOpacity
         onPress={() => setStep(0)}
         style={{ position: "absolute", right: "10%", top: "9%", zIndex: 1 }}
@@ -286,8 +359,26 @@ export default function MyPantry() {
         renderItem={({ item, index, section }) => (
           <Collapsible collapsed={isCollapsed[sections.indexOf(section)]}>
             <View style={styles.sectionItem}>
-              <Text style={{ fontSize: 16, width: "60%" }}>{item}</Text>
+              <View style={{ width: "60%" }}>
+                <Text style={{ fontSize: 16 }}>{item.name}</Text>
+                {item.expiryDate && (
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: "dimgray",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    Expiring: {item.expiryDate}
+                  </Text>
+                )}
+              </View>
               <View style={{ flexDirection: "row", gap: 16 }}>
+                <TouchableOpacity
+                  onPress={() => editItemExpiryDate(section, index)}
+                >
+                  <Ionicons name="calendar" size={18} color="black" />
+                </TouchableOpacity>
                 <TouchableOpacity
                   style={{ display: showEdits ? "flex" : "none" }}
                   onPress={() => editItem(sections.indexOf(section), index)}
@@ -405,7 +496,7 @@ export default function MyPantry() {
             </View>
           </Pressable>
         )}
-        keyExtractor={(item, index) => item + index}
+        keyExtractor={(item, index) => item.name + index}
       />
       <Modal
         animationType="slide"
@@ -498,6 +589,19 @@ const getStyles = (theme: Theme) =>
       justifyContent: "space-between",
       paddingHorizontal: 20,
       paddingVertical: 10,
+    },
+    calendarModal: {
+      alignSelf: "center",
+      backgroundColor: "white",
+      borderRadius: 20,
+      paddingHorizontal: 15,
+      paddingTop: 25,
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
     },
     centered: {
       alignItems: "center",
