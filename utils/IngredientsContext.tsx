@@ -1,14 +1,19 @@
 import { createContext } from "react";
 
+export type Ingredient = {
+  name: string;
+  expiryDate?: string;
+};
+
 export interface IngredientsContextProps {
-  ingredients: string[];
-  tempIngredients: string[];
-  newIngredients: string[];
-  addIngredients: (ingredients: string[]) => void;
-  removeIngredient: (ingredient: string) => void;
-  addTempIngredients: (tempIngredient: string[]) => void;
+  ingredients: Ingredient[];
+  tempIngredients: Ingredient[];
+  newIngredients: Ingredient[];
+  addIngredients: (ingredients: Ingredient[]) => void;
+  removeIngredient: (ingredient: Ingredient) => void;
+  addTempIngredients: (tempIngredient: Ingredient[]) => void;
   clearTempIngredients: () => void;
-  addNewIngredients: (tempIngredients: string[]) => void;
+  addNewIngredients: (tempIngredients: Ingredient[]) => void;
   clearNewIngredients: () => void;
 }
 

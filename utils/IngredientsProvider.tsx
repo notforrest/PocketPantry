@@ -1,29 +1,30 @@
 import { useState } from "react";
 
 import {
+  Ingredient,
   IngredientsContext,
   IngredientsContextProps,
 } from "./IngredientsContext";
 
 const IngredientsProvider = ({ children }: { children: React.ReactNode }) => {
-  const [ingredients, setIngredients] = useState<string[]>([]);
-  const [tempIngredients, setTempIngredients] = useState<string[]>([]);
-  const [newIngredients, setNewIngredients] = useState<string[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [tempIngredients, setTempIngredients] = useState<Ingredient[]>([]);
+  const [newIngredients, setNewIngredients] = useState<Ingredient[]>([]);
 
   // Add finalized ingredients to real list
-  const addIngredients = (ingredients: string[]) => {
+  const addIngredients = (ingredients: Ingredient[]) => {
     setIngredients((prevIngredients) => [...prevIngredients, ...ingredients]);
   };
 
   // Remove ingredient from real list
-  const removeIngredient = (ingredient: string) => {
+  const removeIngredient = (ingredient: Ingredient) => {
     setIngredients((prevIngredients) =>
       prevIngredients.filter((i) => i !== ingredient),
     );
   };
 
   // Add ingredients to temp list for Parser.tsx when parsing the receipt
-  const addTempIngredients = (tempIngredients: string[]) => {
+  const addTempIngredients = (tempIngredients: Ingredient[]) => {
     setTempIngredients((prevTempIngredients) => [
       ...prevTempIngredients,
       ...tempIngredients,
@@ -36,7 +37,7 @@ const IngredientsProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   // Add new ingredients to new list for Confirmation.tsx
-  const addNewIngredients = (newIngredients: string[]) => {
+  const addNewIngredients = (newIngredients: Ingredient[]) => {
     setNewIngredients((prevNewIngredients) => [
       ...prevNewIngredients,
       ...newIngredients,

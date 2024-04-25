@@ -154,7 +154,11 @@ export default function Parser() {
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => {
-                  addTempIngredients(localIngredients);
+                  addTempIngredients(
+                    localIngredients.map((ingredient) => ({
+                      name: ingredient,
+                    })),
+                  );
                   router.push("/scan-receipt/confirmation");
                 }}
               >
