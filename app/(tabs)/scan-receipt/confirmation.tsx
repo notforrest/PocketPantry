@@ -80,7 +80,7 @@ export default function ConfirmPage() {
 
   // Add all of the ingredients from parser to the screen
   useEffect(() => {
-    setConfirmedIngredients(ingredients.map((ingredient) => ingredient.name));
+    setConfirmedIngredients(ingredients);
   }, []);
 
   return (
@@ -141,11 +141,7 @@ export default function ConfirmPage() {
         <TouchableOpacity
           style={styles.doneButton}
           onPress={() => {
-            addNewIngredients(
-              confirmedIngredients.map((ingredient) => ({
-                name: ingredient,
-              })),
-            );
+            addNewIngredients(confirmedIngredients);
             clearTempIngredients();
             router.navigate("/my-pantry");
             router.dismissAll();
