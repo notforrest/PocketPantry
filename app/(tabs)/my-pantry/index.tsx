@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { SymbolView } from "expo-symbols";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -241,7 +241,7 @@ export default function MyPantry() {
         onPress={() => setStep(0)}
         style={{ position: "absolute", right: "10%", top: "9%", zIndex: 1 }}
       >
-        <Ionicons name="help-circle" size={24} color="black" />
+        <SymbolView name="questionmark.circle.fill" tintColor="black" />
       </TouchableOpacity>
       <Text style={styles.title}>My Pantry</Text>
       <View style={styles.buttons}>
@@ -249,34 +249,36 @@ export default function MyPantry() {
           onPress={() => setIsCollapsed(Array(sections.length).fill(false))}
           ref={btnRefs[0]}
         >
-          <Ionicons name="chevron-expand" size={24} color="black" />
+          <SymbolView name="rectangle.expand.vertical" tintColor="black" />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setIsCollapsed(Array(sections.length).fill(true))}
           ref={btnRefs[1]}
         >
-          <Ionicons name="chevron-collapse" size={24} color="black" />
+          <SymbolView name="rectangle.compress.vertical" tintColor="black" />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setAddLocationModalVisible(true)}
           ref={btnRefs[2]}
         >
-          <Ionicons name="add" size={24} color="black" />
+          <SymbolView name="rectangle.badge.plus" tintColor="black" />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setShowEdits(!showEdits)}
           ref={btnRefs[3]}
         >
-          <Ionicons name="pencil" size={20} color="black" />
+          <SymbolView
+            name={showEdits ? "pencil.slash" : "pencil"}
+            tintColor="black"
+          />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setShowDeletes(!showDeletes)}
           ref={btnRefs[4]}
         >
-          <Ionicons
-            name={showDeletes ? "trash-outline" : "trash"}
-            size={20}
-            color="black"
+          <SymbolView
+            name={showDeletes ? "trash.slash" : "trash"}
+            tintColor="black"
           />
         </TouchableOpacity>
       </View>
@@ -293,13 +295,13 @@ export default function MyPantry() {
                   style={{ display: showEdits ? "flex" : "none" }}
                   onPress={() => editItem(sections.indexOf(section), index)}
                 >
-                  <Ionicons name="pencil" size={18} color="black" />
+                  <SymbolView name="pencil" size={20} tintColor="black" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{ display: showDeletes ? "flex" : "none" }}
                   onPress={() => handleDeleteIngredient(section, index, item)}
                 >
-                  <Ionicons name="trash" size={18} color="black" />
+                  <SymbolView name="trash.fill" size={20} tintColor="black" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{
@@ -327,7 +329,11 @@ export default function MyPantry() {
                     setSections(updatedSections);
                   }}
                 >
-                  <Ionicons name="caret-up" size={18} color="black" />
+                  <SymbolView
+                    name="chevron.up"
+                    resizeMode="scaleAspectFit"
+                    tintColor="black"
+                  />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{
@@ -357,7 +363,11 @@ export default function MyPantry() {
                     setSections(updatedSections);
                   }}
                 >
-                  <Ionicons name="caret-down" size={18} color="black" />
+                  <SymbolView
+                    name="chevron.down"
+                    resizeMode="scaleAspectFit"
+                    tintColor="black"
+                  />
                 </TouchableOpacity>
               </View>
             </View>
@@ -385,23 +395,23 @@ export default function MyPantry() {
                   style={{ display: showEdits ? "flex" : "none" }}
                   onPress={() => editSection(section.id, section.title)}
                 >
-                  <Ionicons name="pencil" size={18} color="black" />
+                  <SymbolView name="pencil" size={18} tintColor="black" />
                 </TouchableOpacity>
               )}
               <TouchableOpacity
                 style={{ display: showDeletes ? "flex" : "none" }}
                 onPress={() => handleDeleteSection(section)}
               >
-                <Ionicons name="trash" size={18} color="black" />
+                <SymbolView name="trash.fill" size={18} tintColor="black" />
               </TouchableOpacity>
-              <Ionicons
+              <SymbolView
                 name={
                   isCollapsed[sections.indexOf(section)]
-                    ? "chevron-down"
-                    : "chevron-up"
+                    ? "chevron.down"
+                    : "chevron.up"
                 }
-                size={24}
-                color="black"
+                resizeMode="scaleAspectFit"
+                tintColor="black"
               />
             </View>
           </Pressable>

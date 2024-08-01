@@ -1,5 +1,5 @@
-import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { SymbolView } from "expo-symbols";
 import React from "react";
 
 import { useTheme } from "../../utils/ThemeProvider";
@@ -20,7 +20,13 @@ export default function TabLayout() {
           headerShown: false,
           title: "Home",
           tabBarIcon(props) {
-            return <Ionicons name="home" size={24} color={props.color} />;
+            return (
+              <SymbolView
+                name="house.fill"
+                resizeMode="scaleAspectFill"
+                tintColor={props.color}
+              />
+            );
           },
         }}
       />
@@ -31,7 +37,13 @@ export default function TabLayout() {
           headerTitle: "Scan Receipt",
           title: "Scanner",
           tabBarIcon(props) {
-            return <Ionicons name="scan" size={24} color={props.color} />;
+            return (
+              <SymbolView
+                name="viewfinder"
+                resizeMode="scaleAspectFill"
+                tintColor={props.color}
+              />
+            );
           },
         }}
       />
@@ -42,7 +54,13 @@ export default function TabLayout() {
           headerTitle: "Manual Input",
           title: "Manual",
           tabBarIcon(props) {
-            return <Ionicons name="create" size={24} color={props.color} />;
+            return (
+              <SymbolView
+                name="pencil.and.scribble"
+                resizeMode="scaleAspectFill"
+                tintColor={props.color}
+              />
+            );
           },
         }}
       />
@@ -53,7 +71,13 @@ export default function TabLayout() {
           headerTitle: "My Pantry",
           title: "My Pantry",
           tabBarIcon(props) {
-            return <Ionicons name="basket" size={24} color={props.color} />;
+            return (
+              <SymbolView
+                name="basket.fill"
+                resizeMode="scaleAspectFill"
+                tintColor={props.color}
+              />
+            );
           },
         }}
       />

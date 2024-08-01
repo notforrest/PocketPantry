@@ -1,8 +1,8 @@
-import { Ionicons } from "@expo/vector-icons";
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
+import { SymbolView } from "expo-symbols";
 import React, { useState, useEffect } from "react";
 import {
   Text,
@@ -12,6 +12,7 @@ import {
   Dimensions,
   Pressable,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
 
 export default function Scanner() {
@@ -85,9 +86,14 @@ export default function Scanner() {
     return (
       <View style={styles.noCamScreen}>
         <Text>{"No access to camera\nClick to access Library"}</Text>
-        <Pressable onPress={() => pickImageAsync()}>
-          <Ionicons name="images" size={35} color="black" />
-        </Pressable>
+        <TouchableOpacity onPress={() => pickImageAsync()}>
+          <SymbolView
+            name="photo.on.rectangle.angled"
+            resizeMode="scaleAspectFill"
+            size={36}
+            tintColor="black"
+          />
+        </TouchableOpacity>
       </View>
     );
   }
@@ -97,6 +103,7 @@ export default function Scanner() {
       <View style={styles.screen}>
         <CameraView
           autofocus="off"
+          enableTorch={torch}
           facing={cameraType}
           onCameraReady={() => requestPermission}
           style={styles.camera}
@@ -113,10 +120,11 @@ export default function Scanner() {
                 marginBottom: 24,
               })}
             >
-              <Ionicons
-                name={torch ? "flash" : "flash-off"}
-                size={30}
-                color="white"
+              <SymbolView
+                name={torch ? "bolt.fill" : "bolt.slash.fill"}
+                resizeMode="scaleAspectFill"
+                size={24}
+                tintColor="white"
               />
             </Pressable>
           )}
@@ -129,7 +137,12 @@ export default function Scanner() {
                 pressed ? { opacity: 0.7 } : { opacity: 1 }
               }
             >
-              <Ionicons name="camera-reverse" size={40} color="white" />
+              <SymbolView
+                name="arrow.triangle.2.circlepath.camera.fill"
+                resizeMode="scaleAspectFill"
+                size={32}
+                tintColor="white"
+              />
             </Pressable>
             <Pressable
               onPress={() => {
@@ -139,7 +152,12 @@ export default function Scanner() {
                 pressed ? styles.takePicButtonPressed : styles.takePicButton
               }
             >
-              <Ionicons name="scan-circle" size={100} color="white" />
+              <SymbolView
+                name="viewfinder.circle.fill"
+                resizeMode="scaleAspectFill"
+                size={100}
+                tintColor="white"
+              />
             </Pressable>
             <Pressable
               onPress={() => pickImageAsync()}
@@ -147,7 +165,12 @@ export default function Scanner() {
                 pressed ? { opacity: 0.7 } : { opacity: 1 }
               }
             >
-              <Ionicons name="images" size={35} color="white" />
+              <SymbolView
+                name="photo.fill.on.rectangle.fill"
+                resizeMode="scaleAspectFill"
+                size={32}
+                tintColor="white"
+              />
             </Pressable>
           </View>
         </CameraView>
