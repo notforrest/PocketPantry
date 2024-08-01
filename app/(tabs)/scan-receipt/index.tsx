@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { AutoFocus, Camera, CameraType, FlashMode } from "expo-camera";
+import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
@@ -7,7 +7,6 @@ import React, { useState, useEffect } from "react";
 import {
   Text,
   View,
-  ScrollView,
   TouchableWithoutFeedback,
   Keyboard,
   Dimensions,
@@ -16,49 +15,45 @@ import {
 } from "react-native";
 
 export default function Scanner() {
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [cameraType, setCameraType] = useState<CameraType>(CameraType.back);
-  const [flashMode, setFlashMode] = useState<FlashMode>(FlashMode.off);
+  const [cameraType, setCameraType] = useState<CameraType>("back");
+  const [torch, setTorch] = useState<boolean>();
 
-  let camera: Camera | null = null;
-
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
-    })();
-  }, []);
+  let camera: CameraView | null = null;
 
   // Take a picture using Expo Image Manipulator
   const takePicture = async () => {
     if (!camera) return;
 
     let photo = await camera.takePictureAsync();
-    photo = await ImageManipulator.manipulateAsync(photo.uri, [], {
-      compress: 0.5,
-    });
 
-    setSelectedImage(photo.uri);
+    if (photo) {
+      photo = await ImageManipulator.manipulateAsync(photo.uri, [], {
+        compress: 0.5,
+      });
+
+      setSelectedImage(photo.uri);
+    }
   };
 
   // Auto Focus code borrowed from: https://github.com/expo/expo/issues/26869#issuecomment-2001925877
-  const [focus, setFocus] = useState<AutoFocus>(AutoFocus.on);
+  // const [focus, setFocus] = useState<AutoFocus>(AutoFocus.on);
 
-  const updateCameraFocus = () => setFocus(AutoFocus.off);
+  // const updateCameraFocus = () => setFocus(AutoFocus.off);
 
   // Switch autofocus back to "on" after 50ms, this refocuses the camera
-  useEffect(() => {
-    if (focus !== AutoFocus.off) return;
-    const timeout = setTimeout(() => setFocus(AutoFocus.on), 50);
-    return () => clearTimeout(timeout);
-  }, [focus]);
+  // useEffect(() => {
+  //   if (focus !== AutoFocus.off) return;
+  //   const timeout = setTimeout(() => setFocus(AutoFocus.on), 50);
+  //   return () => clearTimeout(timeout);
+  // }, [focus]);
 
   // Refocus camera every 2 seconds
-  useEffect(() => {
-    const interval = setInterval(() => updateCameraFocus(), 2000);
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   const interval = setInterval(() => updateCameraFocus(), 2000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   // Routes to next step if an image is selected
   useEffect(() => {
@@ -80,10 +75,13 @@ export default function Scanner() {
     }
   };
 
-  if (hasPermission === null) {
+  // Camera permissions still loading
+  if (!permission) {
     return <View />;
   }
-  if (hasPermission === false) {
+
+  // If camera permission is not granted, show message to access the library
+  if (!permission.granted) {
     return (
       <View style={styles.noCamScreen}>
         <Text>{"No access to camera\nClick to access Library"}</Text>
@@ -97,22 +95,18 @@ export default function Scanner() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.screen}>
-        <Camera
-          autoFocus={focus}
-          flashMode={flashMode}
+        <CameraView
+          autofocus="off"
+          facing={cameraType}
+          onCameraReady={() => requestPermission}
           style={styles.camera}
-          type={cameraType}
           ref={(ref) => {
             camera = ref;
           }}
         >
-          {cameraType === CameraType.back && (
+          {cameraType === "back" && (
             <Pressable
-              onPress={() =>
-                setFlashMode(
-                  flashMode === FlashMode.off ? FlashMode.torch : FlashMode.off,
-                )
-              }
+              onPress={() => setTorch(!torch)}
               style={({ pressed }) => ({
                 alignItems: "center",
                 opacity: pressed ? 0.7 : 1,
@@ -120,7 +114,7 @@ export default function Scanner() {
               })}
             >
               <Ionicons
-                name={flashMode === FlashMode.off ? "flash-off" : "flash"}
+                name={torch ? "flash" : "flash-off"}
                 size={30}
                 color="white"
               />
@@ -129,11 +123,7 @@ export default function Scanner() {
           <View style={styles.takePicCont}>
             <Pressable
               onPress={() =>
-                setCameraType(
-                  cameraType === CameraType.back
-                    ? CameraType.front
-                    : CameraType.back,
-                )
+                setCameraType(cameraType === "back" ? "front" : "back")
               }
               style={({ pressed }) =>
                 pressed ? { opacity: 0.7 } : { opacity: 1 }
@@ -160,7 +150,7 @@ export default function Scanner() {
               <Ionicons name="images" size={35} color="white" />
             </Pressable>
           </View>
-        </Camera>
+        </CameraView>
       </View>
     </TouchableWithoutFeedback>
   );
