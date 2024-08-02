@@ -75,13 +75,13 @@ export default function ConfirmPage() {
       };
 
       return onBackPress;
-    }, []),
+    }, [clearTempIngredients]),
   );
 
-  // Add all of the ingredients from parser to the screen
+  // Bring all ingredients from parser screen to confirm screen
   useEffect(() => {
     setConfirmedIngredients(ingredients);
-  }, []);
+  }, [ingredients]);
 
   return (
     <View style={styles.container}>

@@ -183,10 +183,10 @@ export default function MyPantry() {
 
       clearNewIngredients();
     }
-  }, [newIngredients]);
+  }, [clearNewIngredients, newIngredients]);
 
   useEffect(() => {
-    setIsCollapsed([...isCollapsed, true]);
+    setIsCollapsed((prevIsCollapsed) => [...prevIsCollapsed, true]);
 
     if (sections[0].title === "Unsorted" && sections[0].data.length === 0) {
       setSections((prevSections) => prevSections.filter((_, i) => i !== 0));
@@ -232,6 +232,7 @@ export default function MyPantry() {
     }, 1000);
 
     setBtnLayouts(newLayouts);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
