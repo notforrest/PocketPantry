@@ -1,4 +1,8 @@
 module.exports = {
   root: true,
-  extends: ["universe/native"],
+  extends: ["expo", "prettier"],
+  plugins: ["prettier"],
+  rules: {
+    "prettier/prettier": "error",
+  },
 };
