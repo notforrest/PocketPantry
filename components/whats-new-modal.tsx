@@ -2,15 +2,21 @@ import { Modal, Text, View, Button, StyleSheet } from "react-native";
 
 import { Theme, useTheme } from "../utils/ThemeProvider";
 
-export const WhatsNewModal = () => {
+type WhatsNewModalProps = {
+  version: string;
+  changes: string;
+  onClose: () => void;
+};
+
+export const WhatsNewModal = (props: WhatsNewModalProps) => {
   const styles = getOnboardingStyles(useTheme());
   return (
     <Modal animationType="slide" transparent>
       <View style={styles.centered}>
         <View style={styles.modal}>
-          <Text style={styles.modalTitle}>What's New:</Text>
-          <Text style={styles.modalBody}>Version 1.0: updated Expo!</Text>
-          <Button title="Got it!" />
+          <Text style={styles.modalTitle}>What's New in v{props.version}:</Text>
+          <Text style={styles.modalBody}>{props.changes}</Text>
+          <Button title="Got it!" onPress={props.onClose} />
         </View>
       </View>
     </Modal>
