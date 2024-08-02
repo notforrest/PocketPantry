@@ -1,5 +1,5 @@
-import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
+import { SymbolView } from "expo-symbols";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   Alert,
@@ -89,10 +89,15 @@ export default function ConfirmPage() {
         <View>
           <Text style={styles.title}>Confirm Ingredients</Text>
           <Text style={styles.titleDesc}>
-            Click <Ionicons name="pencil" size={14} color="black" />
-            {" to edit\nClick"}{" "}
-            <Ionicons name="trash" size={14} color="black" />
-            {" to delete"}
+            Click
+            <SymbolView name="pencil" resizeMode="center" tintColor="black" />
+            {"to edit\nClick"}
+            <SymbolView
+              name="trash.fill"
+              resizeMode="center"
+              tintColor="black"
+            />
+            to delete
           </Text>
         </View>
       )}
@@ -110,15 +115,15 @@ export default function ConfirmPage() {
                 <TouchableOpacity
                   onPress={() => handleEdit(index, section.title, item)}
                 >
-                  <Ionicons name="pencil" size={20} color="black" />
+                  <SymbolView name="pencil" tintColor="black" />
                 </TouchableOpacity>
                 {section.title === "Trash" ? (
                   <TouchableOpacity onPress={() => handleUndo(index)}>
-                    <Ionicons name="arrow-undo" size={20} color="black" />
+                    <SymbolView name="arrow.uturn.backward" tintColor="black" />
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity onPress={() => handleDelete(index)}>
-                    <Ionicons name="trash" size={20} color="black" />
+                    <SymbolView name="trash.fill" tintColor="black" />
                   </TouchableOpacity>
                 )}
               </View>

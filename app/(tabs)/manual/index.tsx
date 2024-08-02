@@ -1,5 +1,5 @@
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { SymbolView } from "expo-symbols";
 import React, { useContext, useState } from "react";
 import {
   Alert,
@@ -87,10 +87,10 @@ export default function Manual() {
               <Text style={{ fontSize: 20, width: "80%" }}>{item}</Text>
               <View style={{ flexDirection: "row", gap: 20 }}>
                 <TouchableOpacity onPress={() => handleEdit(index, item)}>
-                  <Ionicons name="pencil" size={20} color="black" />
+                  <SymbolView name="pencil" size={20} tintColor="black" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleDelete(index)}>
-                  <Ionicons name="trash" size={20} color="black" />
+                  <SymbolView name="trash.fill" size={20} tintColor="black" />
                 </TouchableOpacity>
               </View>
             </View>
