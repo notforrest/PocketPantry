@@ -1,7 +1,7 @@
 import { router } from "expo-router";
-import React from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
+import { WhatsNewModal } from "../../components/whats-new-modal";
 import { Theme, useTheme } from "../../utils/ThemeProvider";
 
 export default function HomePage() {
@@ -14,7 +14,14 @@ export default function HomePage() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Pocket Chef!</Text>
+      <View style={{ alignItems: "center" }}>
+        <WhatsNewModal
+          version="1.0.0"
+          changes="This is the first version of the app."
+        />
+      </View>
+
+      <Text style={styles.title}>Welcome to Pocket Pantry!</Text>
       <TouchableOpacity style={styles.button} onPress={handlePress}>
         <Text style={styles.buttonText}>Scan to Start</Text>
       </TouchableOpacity>
