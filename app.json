@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "PocketChef",
-    "slug": "PocketChef",
-    "scheme": "pocketchef",
+    "name": "PocketPantry",
+    "slug": "PocketPantry",
+    "scheme": "pocketpantry",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
