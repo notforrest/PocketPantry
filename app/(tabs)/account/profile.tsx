@@ -1,9 +1,17 @@
 import { router } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  Pressable,
+} from "react-native";
 import { Button, Icon } from "react-native-elements";
-import { Theme, useTheme } from "../../utils/ThemeProvider";
+import { Theme, useTheme } from "../../../utils/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
+import { supabase } from "../../../utils/supabase";
 
 export default function HomePage() {
   const styles = getStyles(useTheme());
@@ -36,6 +44,15 @@ export default function HomePage() {
         <Ionicons name="calendar-outline" size={32} />
         <Text style={styles.profileText}> 11/24/2001</Text>
       </View>
+      <Pressable
+        style={{ marginTop: 20 }}
+        onPress={async () => {
+          router.replace("/account");
+          await supabase.auth.signOut();
+        }}
+      >
+        <Text>Sign out</Text>
+      </Pressable>
     </View>
   );
 }
