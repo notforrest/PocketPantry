@@ -1,53 +1,31 @@
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  SafeAreaView,
-} from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
 import { WhatsNewModal } from "../../components/whats-new-modal";
 import { Theme, useTheme } from "../../utils/ThemeProvider";
-import { Button } from "react-native-elements";
 
 export default function HomePage() {
   const styles = getStyles(useTheme());
-  const [firstLaunch, setFirstLaunch] = useState(false);
-  // let firstLaunch = true;
 
   const handlePress = () => {
     // Navigate to the Scanner page
     router.navigate("./scan-receipt");
   };
 
-  const closeModal = () => {
-    setFirstLaunch(false);
-  };
-
-  useEffect(() => {
-    setFirstLaunch(true);
-  }, []);
-
   return (
-    <>
-      {firstLaunch && (
-        <>
-          <WhatsNewModal
-            version="1.0.0"
-            changes="This is the first version of the app."
-            onClose={closeModal}
-          />
-        </>
-      )}
-      <View style={styles.container}>
-        <Text style={styles.title}>Welcome to Pocket Pantry!</Text>
-        <TouchableOpacity style={styles.button} onPress={handlePress}>
-          <Text style={styles.buttonText}>Scan to Start</Text>
-        </TouchableOpacity>
+    <View style={styles.container}>
+      <View style={{ alignItems: "center" }}>
+        <WhatsNewModal
+          version="1.0.0"
+          changes="This is the first version of the app."
+        />
       </View>
-    </>
+
+      <Text style={styles.title}>Welcome to Pocket Pantry!</Text>
+      <TouchableOpacity style={styles.button} onPress={handlePress}>
+        <Text style={styles.buttonText}>Scan to Start</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
