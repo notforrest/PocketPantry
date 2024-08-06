@@ -1,22 +1,24 @@
 import { Modal, Text, View, Button, StyleSheet } from "react-native";
 
+import React, { useState } from "react";
 import { Theme, useTheme } from "../utils/ThemeProvider";
 
-type WhatsNewModalProps = {
+interface WhatsNewModalProps {
   version: string;
   changes: string;
-  onClose: () => void;
-};
+}
 
-export const WhatsNewModal = (props: WhatsNewModalProps) => {
+export const WhatsNewModal = ({ version, changes }: WhatsNewModalProps) => {
   const styles = getOnboardingStyles(useTheme());
+  const [modalVisible, setModalVisible] = useState(true);
+
   return (
-    <Modal animationType="slide" transparent>
+    <Modal animationType="slide" transparent visible={modalVisible}>
       <View style={styles.centered}>
         <View style={styles.modal}>
-          <Text style={styles.modalTitle}>What's New in v{props.version}:</Text>
-          <Text style={styles.modalBody}>{props.changes}</Text>
-          <Button title="Got it!" onPress={props.onClose} />
+          <Text style={styles.modalTitle}>What's New in v{version}:</Text>
+          <Text style={styles.modalBody}>{changes}</Text>
+          <Button title="Got it!" onPress={() => setModalVisible(false)} />
         </View>
       </View>
     </Modal>
@@ -27,8 +29,8 @@ const getOnboardingStyles = (_theme: Theme) =>
   StyleSheet.create({
     centered: {
       alignItems: "center",
-      flex: 1,
       justifyContent: "center",
+      flex: 1,
     },
     modal: {
       alignItems: "center",
