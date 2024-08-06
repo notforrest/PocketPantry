@@ -24,6 +24,7 @@ jobs:
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
+        API_KEY: ${{ secrets.GOOGLE_VISION_API_KEY }}
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
