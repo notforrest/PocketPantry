@@ -11,6 +11,7 @@ import {
   Alert,
 } from "react-native";
 
+// eslint-disable-next-line import/no-unresolved
 import { API_KEY } from "../../../config";
 import { IngredientsContext } from "../../../utils/IngredientsContext";
 import { Theme, useTheme } from "../../../utils/ThemeProvider";
