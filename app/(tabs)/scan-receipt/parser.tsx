@@ -11,7 +11,7 @@ import {
   Alert,
 } from "react-native";
 
-import { API_KEY } from "../../../config";
+import { GOOGLE_API_KEY } from "../../../config";
 import { IngredientsContext } from "../../../utils/IngredientsContext";
 import { Theme, useTheme } from "../../../utils/ThemeProvider";
 
@@ -28,7 +28,7 @@ export default function Parser() {
 
   const parsePicture = async () => {
     if (selectedImage) {
-      const apiKey = API_KEY;
+      const apiKey = GOOGLE_API_KEY;
       const endpoint = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
       const base64Image = await convertImageToBase64(selectedImage.toString());
 
