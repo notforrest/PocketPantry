@@ -1,57 +1,82 @@
 import { router } from "expo-router";
-import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Image,
-  Pressable,
-} from "react-native";
-import { Button, Icon } from "react-native-elements";
+import React, { useState } from "react";
+import { StyleSheet, Text, View, Pressable, TextInput } from "react-native";
 import { Theme, useTheme } from "../../../utils/ThemeProvider";
-import { Ionicons } from "@expo/vector-icons";
 import { supabase } from "../../../utils/supabase";
+import { SymbolView } from "expo-symbols";
 
 export default function HomePage() {
   const styles = getStyles(useTheme());
-  const defaultProfile = "../../assets/EmptyProfile.jpg";
+
+  const [name, setName] = useState("John Doe");
+  const [isNameFocused, setIsNameFocused] = useState(false);
+  const [email, setEmail] = useState("johndoe@email.com");
+  const [isEmailFocused, setEmailFocused] = useState(false);
+  const [birthday, setBirthday] = useState("01/01/2000");
+  const [isBirthdayFocused, setBirthdayFocused] = useState(false);
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={{ position: "absolute", right: "10%", top: "9%", zIndex: 1 }}
-      >
-        <Ionicons name="create-outline" size={32} color="black" />
-      </TouchableOpacity>
-      <Text style={styles.title}>My Profile</Text>
-      {/*<Image source={require(defaultProfile)} style={styles.profilePicture} />*/}
-      <Ionicons name="person-circle" size={150} />
-      <Text style={styles.profileHeader}>Username</Text>
-      <View style={styles.profileBody}>
-        <Ionicons name="person-circle" size={32} />
-        <Text style={styles.profileText}> Bio...</Text>
+    <View style={styles.page}>
+      <SymbolView name="person.crop.circle.fill" size={150} tintColor="black" />
+      <View style={styles.profileContainer}>
+        <Text style={styles.profileLabel}>Name</Text>
+        <View style={styles.profileField}>
+          <SymbolView name="person.crop.circle.fill" tintColor="black" />
+          <TextInput
+            style={
+              isNameFocused ? styles.profileTextSelected : styles.profileText
+            }
+            value={name}
+            onChangeText={setName}
+            onEndEditing={() => setIsNameFocused(false)}
+            onFocus={() => setIsNameFocused(true)}
+          />
+        </View>
       </View>
-      <View style={styles.profileBody}>
-        <Ionicons name="mail-outline" size={32} />
-        <Text style={styles.profileText}> user@email.com</Text>
+      <View style={styles.profileContainer}>
+        <Text style={styles.profileLabel}>Email</Text>
+        <View style={styles.profileField}>
+          <SymbolView
+            name="envelope.fill"
+            resizeMode="scaleAspectFit"
+            tintColor="black"
+          />
+          <TextInput
+            style={
+              isEmailFocused ? styles.profileTextSelected : styles.profileText
+            }
+            value={email}
+            onChangeText={setEmail}
+            onEndEditing={() => setEmailFocused(false)}
+            onFocus={() => setEmailFocused(true)}
+          />
+        </View>
       </View>
-      <View style={styles.profileBody}>
-        <Ionicons name="call-outline" size={32} />
-        <Text style={styles.profileText}> (123) 456-7890</Text>
-      </View>
-      <View style={styles.profileBody}>
-        <Ionicons name="calendar-outline" size={32} />
-        <Text style={styles.profileText}> 11/24/2001</Text>
+      <View style={styles.profileContainer}>
+        <Text style={styles.profileLabel}>Birthday</Text>
+        <View style={styles.profileField}>
+          <SymbolView name="calendar" tintColor="black" />
+          <TextInput
+            style={
+              isBirthdayFocused
+                ? styles.profileTextSelected
+                : styles.profileText
+            }
+            value={birthday}
+            onChangeText={setBirthday}
+            onEndEditing={() => setBirthdayFocused(false)}
+            onFocus={() => setBirthdayFocused(true)}
+          />
+        </View>
       </View>
       <Pressable
-        style={{ marginTop: 20 }}
+        style={styles.button}
         onPress={async () => {
           router.replace("/account");
           await supabase.auth.signOut();
         }}
       >
-        <Text>Sign out</Text>
+        <Text style={styles.buttonText}>Sign out</Text>
       </Pressable>
     </View>
   );
@@ -59,58 +84,42 @@ export default function HomePage() {
 
 const getStyles = (theme: Theme) =>
   StyleSheet.create({
-    container: {
+    page: {
       alignItems: "center",
       backgroundColor: theme.background,
       flex: 1,
       justifyContent: "center",
-      padding: 20,
-    },
-    title: {
-      fontSize: 40,
-      textAlign: "center",
-      fontWeight: "bold",
-      marginTop: 20,
-      marginBottom: 20,
-      width: "80%",
     },
     button: {
       ...theme.button,
+      marginTop: 20,
     },
     buttonText: {
       color: theme.white,
+    },
+    profileContainer: {
+      width: "80%",
+      gap: 10,
+      margin: 10,
+    },
+    profileLabel: {
       fontSize: 20,
-      fontWeight: "bold",
+      marginLeft: 10,
     },
-    profilePicture: {
-      width: 130,
-      height: 130,
-      borderTopLeftRadius: 150,
-      borderTopRightRadius: 150,
-      borderBottomLeftRadius: 150,
-      borderBottomRightRadius: 150,
-      marginTop: 20,
-      marginBottom: 20,
-    },
-    profileHeader: {
-      fontSize: 30,
-      marginBottom: 20,
+    profileField: {
+      alignItems: "center",
+      backgroundColor: theme.white,
+      borderRadius: 15,
+      flexDirection: "row",
+      gap: 10,
+      padding: 10,
     },
     profileText: {
-      fontSize: 20,
+      fontSize: 18,
+      color: theme.gray,
     },
-    profileBody: {
-      backgroundColor: "white",
-      height: 70,
-      width: 350,
-      padding: 20,
-      borderTopLeftRadius: 50,
-      borderTopRightRadius: 50,
-      borderBottomLeftRadius: 50,
-      borderBottomRightRadius: 50,
-      justifyContent: "flex-start",
-      alignItems: "stretch",
-      marginTop: 20,
-      flexDirection: "row",
+    profileTextSelected: {
+      fontSize: 18,
+      color: theme.black,
     },
   });
