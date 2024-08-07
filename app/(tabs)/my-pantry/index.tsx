@@ -47,31 +47,58 @@ export default function MyPantry() {
   const queryLocationsByUserID = async (user_id: string) => {
     const { data: locations, error } = await supabase
       .from("locations")
-      .select("* WHERE `user_id` = '" + user_id + "'");
-    console.log(locations, error);
+      .select("*")
+      .eq("user_id", user_id);
+
+    if (error || !locations) {
+      console.error("Error fetching locations:", error);
+      return [];
+    }
+    return locations.map((location) => location.location_name);
   };
 
   const queryIngredientsByLocationID = async (location_id: string) => {
     const { data: ingredients, error } = await supabase
       .from("ingredients")
-      .select("* WHERE `location_id` = '" + location_id + "'");
-    console.log(ingredients, error);
+      .select("*")
+      .eq("location_id", location_id);
+
+    if (error || !ingredients) {
+      console.error("Error fetching ingredients:", error);
+      return [];
+    }
+    return ingredients.map((ingredient) => ingredient.ingredient_name);
   };
 
   const queryIngredientsByUserID = async (user_id: string) => {
     const { data: ingredients, error } = await supabase
       .from("ingredients")
-      .select("* WHERE `user_id` = '" + user_id + "'");
-    console.log(ingredients, error);
-  };
+      .select("*")
+      .eq("user_id", user_id);
 
-  console.log("locations for userid\n");
-  queryLocationsByUserID("21512ed7-fdab-4eba-b109-d8271f083857");
-  console.log("ingredients for locaitonid\n");
-  queryIngredientsByLocationID("5b42a23f-78dd-404d-b692-bd30b8e5b3fb");
-  console.log("ingredients for users\n");
-  queryIngredientsByUserID("21512ed7-fdab-4eba-b109-d8271f083857");
-  console.log("\n");
+    if (error || !ingredients) {
+      console.error("Error fetching ingredients:", error);
+      return [];
+    }
+    return ingredients;
+    return ingredients.map((ingredient) => ingredient.ingredient_name);
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      console.log("locations for userid\n");
+      const locations = await queryLocationsByUserID("21512ed7-fdab-4eba-b109-d8271f083857");
+      console.log(locations);
+
+      console.log("ingredients for location id\n");
+      const ingredients = await queryIngredientsByLocationID("5b42a23f-78dd-404d-b692-bd30b8e5b3fb");
+      console.log(ingredients);
+      console.log("ingredients for users\n");
+      const ingredientsForUser = await queryIngredientsByUserID("21512ed7-fdab-4eba-b109-d8271f083857");
+      console.log(ingredientsForUser);
+      console.log("\n");
+    };
+    fetchData();
+  }, []);
 
   const { newIngredients, clearNewIngredients } =
     useContext(IngredientsContext);
