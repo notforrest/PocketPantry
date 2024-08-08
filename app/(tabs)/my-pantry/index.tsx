@@ -54,7 +54,11 @@ export default function MyPantry() {
       console.error("Error fetching locations:", error);
       return [];
     }
-    return locations.map((location) => location.location_name);
+    const locationsMap = locations.map((location) => ({
+      [location.location_id]: location.location_name,
+    }));
+
+    return locationsMap;
   };
 
   const queryIngredientsByLocationID = async (location_id: string) => {
@@ -67,7 +71,11 @@ export default function MyPantry() {
       console.error("Error fetching ingredients:", error);
       return [];
     }
-    return ingredients.map((ingredient) => ingredient.ingredient_name);
+    const ingredientsMap = ingredients.map((ingredient) => ({
+      [ingredient.ingredient_id]: ingredient.ingredient_name,
+    }));
+
+    return ingredientsMap;
   };
 
   const queryIngredientsByUserID = async (user_id: string) => {
@@ -80,23 +88,56 @@ export default function MyPantry() {
       console.error("Error fetching ingredients:", error);
       return [];
     }
-    return ingredients;
-    return ingredients.map((ingredient) => ingredient.ingredient_name);
+
+    const ingredientsMap = ingredients.map((ingredient) => ({
+      [ingredient.ingredient_id]: ingredient.ingredient_name,
+    }));
+
+    return ingredientsMap;
   };
+
   useEffect(() => {
     const fetchData = async () => {
-      console.log("locations for userid\n");
-      const locations = await queryLocationsByUserID("21512ed7-fdab-4eba-b109-d8271f083857");
-      console.log(locations);
+      const locationsForUser = await queryLocationsByUserID(
+        "6bb6c17d-e1a4-47e7-8511-6f22e186e52e",
+      );
+      console.log(locationsForUser);
 
-      console.log("ingredients for location id\n");
-      const ingredients = await queryIngredientsByLocationID("5b42a23f-78dd-404d-b692-bd30b8e5b3fb");
-      console.log(ingredients);
-      console.log("ingredients for users\n");
-      const ingredientsForUser = await queryIngredientsByUserID("21512ed7-fdab-4eba-b109-d8271f083857");
-      console.log(ingredientsForUser);
-      console.log("\n");
+      // // returns [{locationID1: [ingredient1, ingredient2, ...], {locationID2: [ingredient1]...}]
+      // const locationToIngredientMap: { [key: string]: string[] } = {};
+      // locationsForUser.forEach((locationID) => {
+      //   const locationName = Object.keys(locationID)[0];
+      //   const ingredientsByLocation =
+      //     await queryIngredientsByLocationID(locationID);
+      //   // console.log(
+      //   //   `Ingredients for location ${locationID}:`,
+      //   //   ingredientsByLocation,
+      //   // );
+
+      //   // locationToIngredientMap[locationID] = ingredientsByLocation.flatMap(
+      //   //   (ingredient) => Object.keys(ingredient),
+      //   ingredientsByLocation.forEach((location) => {
+      //     const ingredientID = Object.keys(location)[0];
+      //     console.log(ingredientID);
+      //     // const ingredientName = Object.values(ingredient)[0];
+      //     if (locationToIngredientMap[locationID]) {
+      //       locationToIngredientMap[locationID].push(ingredientID);
+      //     } else if (locationToIngredientMap[locationID] === undefined) {
+      //       locationToIngredientMap[locationID] = [ingredientID];
+      //     } else {
+      //       console.log("nothing");
+      //       locationToIngredientMap[locationID] = [];
+      //     }
+      //   });
+      // });
     };
+    // console.log("Location to ingredients map:", locationToIngredientMap);
+
+    // const ingredientsForUser = await queryIngredientsByUserID(
+    //   "6bb6c17d-e1a4-47e7-8511-6f22e186e52e",
+    // );
+    // console.log(ingredientsForUser);
+    // console.log("\n");
     fetchData();
   }, []);
 
