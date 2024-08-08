@@ -1,25 +1,17 @@
 import { router } from "expo-router";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { Theme, useTheme } from "../../../utils/ThemeProvider";
-import { useEffect, useState } from "react";
-import { Session } from "@supabase/supabase-js";
+import { useEffect } from "react";
 import { supabase } from "../../../utils/supabase";
 import Auth from "../../../components/auth";
 
 export default function Account() {
   const styles = getStyles(useTheme());
-  const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
     supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-
-      if (event === "SIGNED_IN") {
+      if (session || event === "SIGNED_IN") {
         router.replace("/account/profile");
       }
     });
@@ -28,7 +20,6 @@ export default function Account() {
   return (
     <View style={styles.container}>
       <Auth />
-      {session && session.user && <Text>{session.user.id}</Text>}
     </View>
   );
 }

@@ -30,6 +30,7 @@ export default function Auth() {
 
   async function signUpWithEmail() {
     setLoading(true);
+
     const {
       data: { session },
       error,
@@ -38,9 +39,12 @@ export default function Auth() {
       password: password,
     });
 
+    await supabase
+      .from("profiles")
+      .upsert({ id: session?.user.id, email: email });
+
     if (error) Alert.alert(error.message);
-    if (!session)
-      Alert.alert("Please check your inbox for email verification!");
+
     setLoading(false);
   }
 
@@ -54,11 +58,11 @@ export default function Auth() {
           tintColor={"black"}
         />
         <TextInput
-          onChangeText={(text) => setEmail(text)}
-          value={email}
-          placeholder="email@address.com"
           autoCapitalize={"none"}
-          style={{ width: "80%" }}
+          onChangeText={(text) => setEmail(text)}
+          placeholder="email@address.com"
+          style={{ flex: 1 }}
+          value={email}
         />
       </View>
       <Text>Password</Text>
@@ -69,12 +73,12 @@ export default function Auth() {
           tintColor={"black"}
         />
         <TextInput
-          onChangeText={(text) => setPassword(text)}
-          value={password}
-          secureTextEntry={true}
-          placeholder="Password"
           autoCapitalize={"none"}
-          style={{ width: "80%" }}
+          onChangeText={(text) => setPassword(text)}
+          placeholder="Password"
+          secureTextEntry={true}
+          style={{ flex: 1 }}
+          value={password}
         />
       </View>
       <View style={styles.buttons}>
@@ -94,7 +98,6 @@ const getStyles = (theme: Theme) =>
     container: {
       padding: 30,
       width: "90%",
-      gap: 10,
       shadowColor: "black",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.25,
@@ -114,7 +117,9 @@ const getStyles = (theme: Theme) =>
       borderRadius: 5,
       flexDirection: "row",
       gap: 10,
-      marginVertical: 10,
+      marginTop: 10,
+      marginBottom: 25,
       padding: 10,
+      minWidth: "80%",
     },
   });
