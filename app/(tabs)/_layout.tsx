@@ -1,11 +1,19 @@
 import { Tabs } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { useTheme } from "../../utils/ThemeProvider";
+import { supabase } from "../../utils/supabase";
 
 export default function TabLayout() {
   const theme = useTheme();
+  const [showProfile, setShowProfile] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.onAuthStateChange((event) => {
+      setShowProfile(event === "SIGNED_IN");
+    });
+  }, []);
 
   return (
     <Tabs
@@ -74,6 +82,23 @@ export default function TabLayout() {
             return (
               <SymbolView
                 name="basket.fill"
+                resizeMode="scaleAspectFill"
+                tintColor={props.color}
+              />
+            );
+          },
+        }}
+      />
+      <Tabs.Screen
+        name="account"
+        options={{
+          headerShown: false,
+          headerTitle: "Account",
+          title: showProfile ? "Profile" : "Login",
+          tabBarIcon(props) {
+            return (
+              <SymbolView
+                name="person.crop.circle.fill"
                 resizeMode="scaleAspectFill"
                 tintColor={props.color}
               />
