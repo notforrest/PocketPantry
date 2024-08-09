@@ -11,7 +11,7 @@ export default function Account() {
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((event, session) => {
-      if (session || event === "SIGNED_IN") {
+      if (session) {
         router.replace("/account/profile");
       }
     });

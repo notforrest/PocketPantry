@@ -1,6 +1,12 @@
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Pressable, TextInput } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import { Theme, useTheme } from "../../../utils/ThemeProvider";
 import { supabase } from "../../../utils/supabase";
 import { SymbolView } from "expo-symbols";
@@ -9,12 +15,13 @@ export default function HomePage() {
   const styles = getStyles(useTheme());
 
   const [currentUserId, setCurrentUserId] = useState("");
+  const [saveSucceeded, setSaveSucceeded] = useState(false);
 
-  const [username, setUsername] = useState("JohnDoe");
+  const [username, setUsername] = useState("");
   const [isUsernameFocused, setIsUsernameFocused] = useState(false);
   const [name, setName] = useState("");
   const [isNameFocused, setNameFocused] = useState(false);
-  const [email, setEmail] = useState("johndoe@email.com");
+  const [email, setEmail] = useState("");
   const [isEmailFocused, setEmailFocused] = useState(false);
 
   const handleSave = async () => {
@@ -30,6 +37,11 @@ export default function HomePage() {
       ]);
       if (error) {
         throw error;
+      } else {
+        setSaveSucceeded(true);
+        setIsUsernameFocused(false);
+        setNameFocused(false);
+        setEmailFocused(false);
       }
     } catch (error) {
       console.error("Error saving: ", error);
@@ -54,13 +66,18 @@ export default function HomePage() {
 
         if (data?.length) {
           setUsername(data[0].username);
-          setName(data[0].name);
+          setName(data[0].full_name);
           setEmail(data[0].email);
         }
       }
     };
     fetchProfile();
   }, []);
+
+  // Reset saveSucceeded when the user changes their profile
+  useEffect(() => {
+    setSaveSucceeded(false);
+  }, [username, name, email]);
 
   return (
     <View style={styles.page}>
@@ -69,6 +86,7 @@ export default function HomePage() {
         <Text style={styles.profileLabel}>Username</Text>
         <View style={styles.profileField}>
           <TextInput
+            autoCapitalize="none"
             onChangeText={setUsername}
             onEndEditing={() => setIsUsernameFocused(false)}
             onFocus={() => setIsUsernameFocused(true)}
@@ -86,13 +104,14 @@ export default function HomePage() {
         <Text style={styles.profileLabel}>Full Name</Text>
         <View style={styles.profileField}>
           <TextInput
+            autoCapitalize="none"
+            onChangeText={setName}
+            onEndEditing={() => setNameFocused(false)}
+            onFocus={() => setNameFocused(true)}
             style={
               isNameFocused ? styles.profileTextSelected : styles.profileText
             }
             value={name}
-            onChangeText={setName}
-            onEndEditing={() => setNameFocused(false)}
-            onFocus={() => setNameFocused(true)}
           />
         </View>
       </View>
@@ -100,6 +119,7 @@ export default function HomePage() {
         <Text style={styles.profileLabel}>Email</Text>
         <View style={styles.profileField}>
           <TextInput
+            autoCapitalize="none"
             inputMode="email"
             onChangeText={setEmail}
             onEndEditing={() => setEmailFocused(false)}
@@ -113,7 +133,7 @@ export default function HomePage() {
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <Pressable
+        <TouchableOpacity
           onPress={async () => {
             router.replace("/account");
             await supabase.auth.signOut();
@@ -121,10 +141,16 @@ export default function HomePage() {
           style={styles.button}
         >
           <Text style={styles.buttonText}>Sign out</Text>
-        </Pressable>
-        <Pressable onPress={handleSave} style={styles.button}>
-          <Text style={styles.buttonText}>Save</Text>
-        </Pressable>
+        </TouchableOpacity>
+        <TouchableOpacity
+          disabled={saveSucceeded}
+          onPress={handleSave}
+          style={saveSucceeded ? styles.buttonSaved : styles.button}
+        >
+          <Text style={styles.buttonText}>
+            {saveSucceeded ? "Saved!" : "Save"}
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -145,6 +171,11 @@ const getStyles = (theme: Theme) =>
     },
     button: {
       ...theme.button,
+      marginTop: 20,
+    },
+    buttonSaved: {
+      ...theme.button,
+      backgroundColor: theme.darkgray,
       marginTop: 20,
     },
     buttonText: {
