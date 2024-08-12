@@ -13,6 +13,7 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     error: "#E29578",
     white: "#EDF6F9",
     black: "#000",
+    darkgray: "#333333",
     gray: "darkgray",
 
     button: {
@@ -45,6 +46,7 @@ export interface Theme {
   error: string;
   white: string;
   black: string;
+  darkgray: string;
   gray: string;
 
   // Default Component Styles

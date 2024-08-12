@@ -10,8 +10,12 @@ export default function TabLayout() {
   const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
-    supabase.auth.onAuthStateChange((event) => {
-      setShowProfile(event === "SIGNED_IN");
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session || event === "SIGNED_IN") {
+        setShowProfile(true);
+      } else {
+        setShowProfile(false);
+      }
     });
   }, []);
 
@@ -94,6 +98,7 @@ export default function TabLayout() {
         options={{
           headerShown: false,
           headerTitle: "Account",
+          href: showProfile ? "/account/profile" : "/account",
           title: showProfile ? "Profile" : "Login",
           tabBarIcon(props) {
             return (

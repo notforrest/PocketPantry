@@ -10,6 +10,7 @@ import {
 import { supabase } from "../utils/supabase";
 import { SymbolView } from "expo-symbols";
 import { Theme, useTheme } from "../utils/ThemeProvider";
+import { router } from "expo-router";
 
 export default function Auth() {
   const styles = getStyles(useTheme());
@@ -39,11 +40,17 @@ export default function Auth() {
       password: password,
     });
 
-    await supabase
-      .from("profiles")
-      .upsert({ id: session?.user.id, email: email });
+    if (error) {
+      Alert.alert(error.message);
+    } else {
+      await supabase
+        .from("profiles")
+        .upsert({ id: session?.user.id, email: email });
 
-    if (error) Alert.alert(error.message);
+      // Create a username
+      router.replace("/account/choose-username");
+      router.setParams({ userId: session?.user.id });
+    }
 
     setLoading(false);
   }
