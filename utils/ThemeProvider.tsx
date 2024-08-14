@@ -10,7 +10,7 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     secondary: "#006D77",
     secondarylight: "#00838F",
     background: "#83C5BE",
-    error: "#E29578",
+    error: "#B94E27",
     white: "#EDF6F9",
     black: "#000",
     darkgray: "#333333",
