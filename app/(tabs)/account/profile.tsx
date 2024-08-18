@@ -1,52 +1,21 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Theme, useTheme } from "../../../utils/ThemeProvider";
 import { supabase } from "../../../utils/supabase";
 import { SymbolView } from "expo-symbols";
 
 export default function HomePage() {
   const styles = getStyles(useTheme());
+  const { newUser, newName } = useLocalSearchParams<{
+    newUser: string;
+    newName: string;
+  }>();
 
   const [currentUserId, setCurrentUserId] = useState("");
-  const [saveSucceeded, setSaveSucceeded] = useState(false);
-
   const [username, setUsername] = useState("");
-  const [isUsernameFocused, setIsUsernameFocused] = useState(false);
   const [name, setName] = useState("");
-  const [isNameFocused, setNameFocused] = useState(false);
   const [email, setEmail] = useState("");
-  const [isEmailFocused, setEmailFocused] = useState(false);
-
-  const handleSave = async () => {
-    try {
-      const { error } = await supabase.from("profiles").upsert([
-        {
-          id: currentUserId,
-          updated_at: new Date(),
-          username: username,
-          full_name: name,
-          email: email,
-        },
-      ]);
-      if (error) {
-        throw error;
-      } else {
-        setSaveSucceeded(true);
-        setIsUsernameFocused(false);
-        setNameFocused(false);
-        setEmailFocused(false);
-      }
-    } catch (error) {
-      console.error("Error saving: ", error);
-    }
-  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -74,83 +43,31 @@ export default function HomePage() {
     fetchProfile();
   }, []);
 
-  // Reset saveSucceeded when the user changes their profile
   useEffect(() => {
-    setSaveSucceeded(false);
-  }, [username, name, email]);
+    if (newUser) setUsername(newUser);
+    if (newName) setName(newName);
+  }, [newUser, newName]);
 
   return (
     <View style={styles.page}>
+      <TouchableOpacity
+        onPress={() => {
+          router.push("./edit-profile");
+          router.setParams({
+            fetchedId: currentUserId,
+            fetchedUser: username,
+            fetchedName: name,
+            fetchedEmail: email,
+          });
+        }}
+        style={styles.editProfileButton}
+      >
+        <Text style={styles.editProfileText}>Edit Profile</Text>
+      </TouchableOpacity>
       <SymbolView name="person.crop.circle.fill" size={150} tintColor="black" />
       <View style={styles.profileContainer}>
-        <Text style={styles.profileLabel}>Username</Text>
-        <View style={styles.profileField}>
-          <TextInput
-            autoCapitalize="none"
-            onChangeText={setUsername}
-            onEndEditing={() => setIsUsernameFocused(false)}
-            onFocus={() => setIsUsernameFocused(true)}
-            style={
-              isUsernameFocused
-                ? styles.profileTextSelected
-                : styles.profileText
-            }
-            textContentType="name"
-            value={username}
-          />
-        </View>
-      </View>
-      <View style={styles.profileContainer}>
-        <Text style={styles.profileLabel}>Full Name</Text>
-        <View style={styles.profileField}>
-          <TextInput
-            autoCapitalize="none"
-            onChangeText={setName}
-            onEndEditing={() => setNameFocused(false)}
-            onFocus={() => setNameFocused(true)}
-            style={
-              isNameFocused ? styles.profileTextSelected : styles.profileText
-            }
-            value={name}
-          />
-        </View>
-      </View>
-      <View style={styles.profileContainer}>
-        <Text style={styles.profileLabel}>Email</Text>
-        <View style={styles.profileField}>
-          <TextInput
-            autoCapitalize="none"
-            inputMode="email"
-            onChangeText={setEmail}
-            onEndEditing={() => setEmailFocused(false)}
-            onFocus={() => setEmailFocused(true)}
-            style={
-              isEmailFocused ? styles.profileTextSelected : styles.profileText
-            }
-            textContentType="emailAddress"
-            value={email}
-          />
-        </View>
-      </View>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          onPress={async () => {
-            router.replace("/account");
-            await supabase.auth.signOut();
-          }}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>Sign out</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          disabled={saveSucceeded}
-          onPress={handleSave}
-          style={saveSucceeded ? styles.buttonSaved : styles.button}
-        >
-          <Text style={styles.buttonText}>
-            {saveSucceeded ? "Saved!" : "Save"}
-          </Text>
-        </TouchableOpacity>
+        <Text style={styles.nameText}>{name}</Text>
+        <Text style={styles.usernameText}>{`@${username}`}</Text>
       </View>
     </View>
   );
@@ -163,48 +80,33 @@ const getStyles = (theme: Theme) =>
       backgroundColor: theme.background,
       flex: 1,
       justifyContent: "center",
+      padding: "5%",
     },
-    buttonContainer: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      width: "70%",
+    editProfileButton: {
+      borderColor: theme.secondary,
+      borderRadius: 15,
+      borderWidth: 1,
+      position: "absolute",
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      right: "10%",
+      top: "10%",
     },
-    button: {
-      ...theme.button,
-      marginTop: 20,
-    },
-    buttonSaved: {
-      ...theme.button,
-      backgroundColor: theme.darkgray,
-      marginTop: 20,
-    },
-    buttonText: {
-      color: theme.white,
+    editProfileText: {
+      color: theme.secondary,
     },
     profileContainer: {
       gap: 10,
-      margin: 10,
-      width: "80%",
+      marginTop: 10,
     },
-    profileLabel: {
-      fontSize: 20,
-      marginLeft: 10,
-    },
-    profileField: {
-      alignItems: "center",
-      backgroundColor: theme.white,
-      borderRadius: 15,
-      flexDirection: "row",
-      gap: 10,
-      paddingHorizontal: 15,
-      paddingVertical: 10,
-    },
-    profileText: {
-      color: theme.gray,
-      fontSize: 18,
-    },
-    profileTextSelected: {
+    nameText: {
       color: theme.black,
-      fontSize: 18,
+      fontSize: 36,
+      textAlign: "center",
+    },
+    usernameText: {
+      color: theme.black,
+      fontSize: 20,
+      textAlign: "center",
     },
   });
