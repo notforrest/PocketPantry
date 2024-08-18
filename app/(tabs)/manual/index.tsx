@@ -10,9 +10,13 @@ import {
   View,
 } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
+import { createClient } from "@supabase/supabase-js";
 
+import { DB_URL, DB_API_KEY } from "../../../config";
 import { IngredientsContext } from "../../../utils/IngredientsContext";
 import { Theme, useTheme } from "../../../utils/ThemeProvider";
+import { uid } from "../my-pantry/index";
+const supabase = createClient(DB_URL, DB_API_KEY);
 
 export default function Manual() {
   const styles = getStyles(useTheme());
@@ -26,6 +30,34 @@ export default function Manual() {
     addNewIngredients,
     clearTempIngredients,
   } = useContext(IngredientsContext);
+
+  const addIngredientsToDB = async (newIngredients: string[]) => {
+    const { data: unspecifiedLocationID, error } = await supabase
+      .from("locations")
+      .select("location_id")
+      .eq("location_name", "Unspecified")
+      .eq("user_id", uid);
+
+    if (error || !unspecifiedLocationID) {
+      console.error("Error adding ingredients to DB: ", error);
+    }
+    console.log(unspecifiedLocationID);
+    console.log(newIngredients);
+
+    newIngredients.forEach(async (ingredient) => {
+      const { error } = await supabase.from("ingredients").insert([
+        {
+          ingredient_name: ingredient,
+          user_id: uid,
+          location_id: unspecifiedLocationID?.[0].location_id,
+        },
+      ]);
+
+      if (error) {
+        console.error("Error adding ingredients to DB: ", error);
+      }
+    });
+  };
 
   const handleDelete = (index: number) => {
     const newConfirmedIngredients = [...confirmedIngredients];
@@ -100,6 +132,7 @@ export default function Manual() {
       </View>
       <TouchableOpacity
         onPress={() => {
+          addIngredientsToDB(confirmedIngredients);
           addNewIngredients(confirmedIngredients);
           clearTempIngredients();
           setConfirmedIngredients([]);

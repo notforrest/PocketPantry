@@ -27,6 +27,9 @@ type Section = {
   data: string[];
 };
 
+export const uid = "6bb6c17d-e1a4-47e7-8511-6f22e186e52e"; // TEMPORARY USER ID, REPLACE WITH AUTH UID
+const supabase = createClient(DB_URL, DB_API_KEY);
+
 export default function MyPantry() {
   const styles = getStyles(useTheme());
   const [sections, setSections] = useState<Section[]>([
@@ -42,102 +45,16 @@ export default function MyPantry() {
   const [showDeletes, setShowDeletes] = useState<boolean>(false);
   const [showEdits, setShowEdits] = useState<boolean>(false);
   const [step, setStep] = useState(0);
-  const supabase = createClient(DB_URL, DB_API_KEY);
-
-  const queryLocationsByUserID = async (user_id: string) => {
-    const { data: locations, error } = await supabase
-      .from("locations")
-      .select("*")
-      .eq("user_id", user_id);
-
-    if (error || !locations) {
-      console.error("Error fetching locations:", error);
-      return [];
-    }
-    const locationsMap = locations.map((location) => ({
-      [location.location_id]: location.location_name,
-    }));
-
-    return locationsMap;
-  };
-
-  const queryIngredientsByLocationID = async (location_id: string) => {
-    const { data: ingredients, error } = await supabase
-      .from("ingredients")
-      .select("*")
-      .eq("location_id", location_id);
-
-    if (error || !ingredients) {
-      console.error("Error fetching ingredients:", error);
-      return [];
-    }
-    const ingredientsMap = ingredients.map((ingredient) => ({
-      [ingredient.ingredient_id]: ingredient.ingredient_name,
-    }));
-
-    return ingredientsMap;
-  };
-
-  const queryIngredientsByUserID = async (user_id: string) => {
-    const { data: ingredients, error } = await supabase
-      .from("ingredients")
-      .select("*")
-      .eq("user_id", user_id);
-
-    if (error || !ingredients) {
-      console.error("Error fetching ingredients:", error);
-      return [];
-    }
-
-    const ingredientsMap = ingredients.map((ingredient) => ({
-      [ingredient.ingredient_id]: ingredient.ingredient_name,
-    }));
-
-    return ingredientsMap;
-  };
 
   useEffect(() => {
     const fetchData = async () => {
-      const locationsForUser = await queryLocationsByUserID(
-        "6bb6c17d-e1a4-47e7-8511-6f22e186e52e",
-      );
+      const locationsForUser = await queryLocationsByUserID(uid);
       console.log(locationsForUser);
-
-      // // returns [{locationID1: [ingredient1, ingredient2, ...], {locationID2: [ingredient1]...}]
-      // const locationToIngredientMap: { [key: string]: string[] } = {};
-      // locationsForUser.forEach((locationID) => {
-      //   const locationName = Object.keys(locationID)[0];
-      //   const ingredientsByLocation =
-      //     await queryIngredientsByLocationID(locationID);
-      //   // console.log(
-      //   //   `Ingredients for location ${locationID}:`,
-      //   //   ingredientsByLocation,
-      //   // );
-
-      //   // locationToIngredientMap[locationID] = ingredientsByLocation.flatMap(
-      //   //   (ingredient) => Object.keys(ingredient),
-      //   ingredientsByLocation.forEach((location) => {
-      //     const ingredientID = Object.keys(location)[0];
-      //     console.log(ingredientID);
-      //     // const ingredientName = Object.values(ingredient)[0];
-      //     if (locationToIngredientMap[locationID]) {
-      //       locationToIngredientMap[locationID].push(ingredientID);
-      //     } else if (locationToIngredientMap[locationID] === undefined) {
-      //       locationToIngredientMap[locationID] = [ingredientID];
-      //     } else {
-      //       console.log("nothing");
-      //       locationToIngredientMap[locationID] = [];
-      //     }
-      //   });
-      // });
+      const ingredientsInUnspecified = await queryIngredientsByLocationID(
+        "a5131fb6-ede7-4b06-92d4-7e11777dbb1e",
+      );
+      console.log(ingredientsInUnspecified);
     };
-    // console.log("Location to ingredients map:", locationToIngredientMap);
-
-    // const ingredientsForUser = await queryIngredientsByUserID(
-    //   "6bb6c17d-e1a4-47e7-8511-6f22e186e52e",
-    // );
-    // console.log(ingredientsForUser);
-    // console.log("\n");
     fetchData();
   }, []);
 
@@ -569,6 +486,58 @@ export default function MyPantry() {
     </SafeAreaView>
   );
 }
+
+const queryLocationsByUserID = async (user_id: string) => {
+  const { data: locations, error } = await supabase
+    .from("locations")
+    .select("*")
+    .eq("user_id", user_id);
+
+  if (error || !locations) {
+    console.error("Error fetching locations:", error);
+    return [];
+  }
+  const locationsMap = locations.map((location) => ({
+    [location.location_id]: location.location_name,
+  }));
+
+  return locationsMap;
+};
+
+const queryIngredientsByLocationID = async (location_id: string) => {
+  const { data: ingredients, error } = await supabase
+    .from("ingredients")
+    .select("*")
+    .eq("location_id", location_id);
+
+  if (error || !ingredients) {
+    console.error("Error fetching ingredients:", error);
+    return [];
+  }
+  const ingredientsMap = ingredients.map((ingredient) => ({
+    [ingredient.ingredient_id]: ingredient.ingredient_name,
+  }));
+
+  return ingredientsMap;
+};
+
+const queryIngredientsByUserID = async (user_id: string) => {
+  const { data: ingredients, error } = await supabase
+    .from("ingredients")
+    .select("*")
+    .eq("user_id", user_id);
+
+  if (error || !ingredients) {
+    console.error("Error fetching ingredients:", error);
+    return [];
+  }
+
+  const ingredientsMap = ingredients.map((ingredient) => ({
+    [ingredient.ingredient_id]: ingredient.ingredient_name,
+  }));
+
+  return ingredientsMap;
+};
 
 const getStyles = (theme: Theme) =>
   StyleSheet.create({
