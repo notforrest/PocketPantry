@@ -392,18 +392,22 @@ export default function MyPantry() {
             <View style={styles.sectionItem}>
               <Text style={{ fontSize: 16, width: "60%" }}>{item}</Text>
               <View style={{ flexDirection: "row", gap: 16 }}>
-                <TouchableOpacity
-                  style={{ display: showEdits ? "flex" : "none" }}
-                  onPress={() => editItem(sections.indexOf(section), index)}
-                >
-                  <SymbolView name="pencil" size={20} tintColor="black" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{ display: showDeletes ? "flex" : "none" }}
-                  onPress={() => handleDeleteIngredient(section, index, item)}
-                >
-                  <SymbolView name="trash.fill" size={20} tintColor="black" />
-                </TouchableOpacity>
+                <View style={{ opacity: showEdits ? 1 : 0 }}>
+                  <Pressable
+                    disabled={!showEdits}
+                    onPress={() => editItem(sections.indexOf(section), index)}
+                  >
+                    <SymbolView name="pencil" size={20} tintColor="black" />
+                  </Pressable>
+                </View>
+                <View style={{ opacity: showDeletes ? 1 : 0 }}>
+                  <Pressable
+                    disabled={!showDeletes}
+                    onPress={() => handleDeleteIngredient(section, index, item)}
+                  >
+                    <SymbolView name="trash.fill" size={20} tintColor="black" />
+                  </Pressable>
+                </View>
                 <TouchableOpacity
                   style={{
                     display:
