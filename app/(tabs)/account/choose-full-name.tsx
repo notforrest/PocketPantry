@@ -4,31 +4,14 @@ import { StyleSheet, Text, TextInput, View } from "react-native";
 import { Theme, useTheme } from "../../../utils/ThemeProvider";
 import { supabase } from "../../../utils/supabase";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { ERROR_MESSAGES } from "../../../utils/ErrorMessages";
 
 export default function ChooseFullName() {
   const styles = getStyles(useTheme());
-  const [fullName, setFullName] = useState("");
   const { userId } = useLocalSearchParams();
 
-  const handleSubmitFullName = async () => {
-    try {
-      const { error } = await supabase.from("profiles").upsert([
-        {
-          id: userId,
-          updated_at: new Date(),
-          full_name: fullName,
-        },
-      ]);
-      if (error) {
-        throw error;
-      } else {
-        router.replace("/account/profile");
-        router.setParams({ userId: userId });
-      }
-    } catch (error) {
-      console.error("Error saving: ", error);
-    }
-  };
+  const [fullName, setFullName] = useState("");
+  const [errorMessage, setErrorMessage] = useState(" ");
 
   return (
     <View style={styles.container}>
@@ -41,9 +24,10 @@ export default function ChooseFullName() {
         style={styles.input}
         value={fullName}
       />
+      <Text style={styles.errorText}>{errorMessage}</Text>
       <TouchableOpacity
         disabled={!fullName}
-        onPress={handleSubmitFullName}
+        onPress={() => handleSubmitFullName(userId, fullName, setErrorMessage)}
         style={styles.button}
       >
         <Text style={fullName ? styles.buttonText : styles.buttonDisabled}>
@@ -53,6 +37,42 @@ export default function ChooseFullName() {
     </View>
   );
 }
+
+const handleSubmitFullName = async (
+  userId: string | string[],
+  fullName: string,
+  setErrorMessage: (message: string) => void,
+) => {
+  try {
+    if (!isValidName(fullName)) {
+      setErrorMessage(ERROR_MESSAGES[90001]);
+      return;
+    }
+
+    const { error } = await supabase.from("profiles").upsert([
+      {
+        id: userId,
+        updated_at: new Date(),
+        full_name: fullName,
+      },
+    ]);
+    if (error) {
+      throw error;
+    } else {
+      router.replace("/account/profile");
+      router.setParams({ userId: userId });
+    }
+  } catch (error) {
+    const typedError = error as { code: number };
+    setErrorMessage(ERROR_MESSAGES[typedError.code] || "Error saving");
+  }
+};
+
+// Validate full name with regex pattern
+const isValidName = (username: string) => {
+  const regex = /^(?!\s|-)[a-zA-Z\s-]{3,19}[a-zA-Z]$/;
+  return regex.test(username);
+};
 
 const getStyles = (theme: Theme) =>
   StyleSheet.create({
@@ -73,7 +93,6 @@ const getStyles = (theme: Theme) =>
     button: {
       alignItems: "center",
       borderRadius: 10,
-      marginTop: "20%",
       padding: 10,
     },
     buttonDisabled: {
@@ -85,5 +104,11 @@ const getStyles = (theme: Theme) =>
       fontWeight: "bold",
       color: theme.secondary,
       fontSize: 24,
+    },
+    errorText: {
+      color: theme.error,
+      fontSize: 16,
+      marginTop: "5%",
+      minHeight: "15%",
     },
   });

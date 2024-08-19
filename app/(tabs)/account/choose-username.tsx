@@ -4,31 +4,14 @@ import { StyleSheet, Text, TextInput, View } from "react-native";
 import { Theme, useTheme } from "../../../utils/ThemeProvider";
 import { supabase } from "../../../utils/supabase";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { ERROR_MESSAGES } from "../../../utils/ErrorMessages";
 
 export default function ChooseUsername() {
   const styles = getStyles(useTheme());
-  const [username, setUsername] = useState("");
   const { userId } = useLocalSearchParams();
 
-  const handleSubmitUsername = async () => {
-    try {
-      const { error } = await supabase.from("profiles").upsert([
-        {
-          id: userId,
-          updated_at: new Date(),
-          username: username,
-        },
-      ]);
-      if (error) {
-        throw error;
-      } else {
-        router.push("/account/choose-full-name");
-        router.setParams({ userId: userId });
-      }
-    } catch (error) {
-      console.error("Error saving: ", error);
-    }
-  };
+  const [username, setUsername] = useState("");
+  const [errorMessage, setErrorMessage] = useState(" ");
 
   return (
     <View style={styles.container}>
@@ -41,9 +24,10 @@ export default function ChooseUsername() {
         style={styles.input}
         value={username}
       />
+      <Text style={styles.errorText}>{errorMessage}</Text>
       <TouchableOpacity
         disabled={!username}
-        onPress={handleSubmitUsername}
+        onPress={() => handleSubmitUsername(userId, username, setErrorMessage)}
         style={styles.button}
       >
         <Text style={username ? styles.buttonText : styles.buttonDisabled}>
@@ -53,6 +37,42 @@ export default function ChooseUsername() {
     </View>
   );
 }
+
+const handleSubmitUsername = async (
+  userId: string | string[],
+  username: string,
+  setErrorMessage: (message: string) => void,
+) => {
+  try {
+    if (!isValidUsername(username)) {
+      setErrorMessage(ERROR_MESSAGES[90000]);
+      return;
+    }
+
+    const { error } = await supabase.from("profiles").upsert([
+      {
+        id: userId,
+        updated_at: new Date(),
+        username: username,
+      },
+    ]);
+    if (error) {
+      throw error;
+    } else {
+      router.push("/account/choose-full-name");
+      router.setParams({ userId: userId });
+    }
+  } catch (error) {
+    const typedError = error as { code: number };
+    setErrorMessage(ERROR_MESSAGES[typedError.code] || "Error saving");
+  }
+};
+
+// Validate username with regex pattern
+const isValidUsername = (username: string) => {
+  const regex = /^(?!_)\w{3,15}$/;
+  return regex.test(username);
+};
 
 const getStyles = (theme: Theme) =>
   StyleSheet.create({
@@ -73,7 +93,6 @@ const getStyles = (theme: Theme) =>
     button: {
       alignItems: "center",
       borderRadius: 10,
-      marginTop: "20%",
       padding: 10,
     },
     buttonDisabled: {
@@ -85,5 +104,11 @@ const getStyles = (theme: Theme) =>
       fontWeight: "bold",
       color: theme.secondary,
       fontSize: 24,
+    },
+    errorText: {
+      color: theme.error,
+      fontSize: 16,
+      marginTop: "5%",
+      minHeight: "15%",
     },
   });
