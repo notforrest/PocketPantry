@@ -2,13 +2,12 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { Theme, useTheme } from "../../../utils/ThemeProvider";
-import { supabase } from "../../../utils/supabase";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { ERROR_MESSAGES } from "../../../utils/ErrorMessages";
 
 export default function ChooseUsername() {
   const styles = getStyles(useTheme());
-  const { userId } = useLocalSearchParams();
+  const { userId, email, password } = useLocalSearchParams();
 
   const [username, setUsername] = useState("");
   const [errorMessage, setErrorMessage] = useState(" ");
@@ -27,7 +26,15 @@ export default function ChooseUsername() {
       <Text style={styles.errorText}>{errorMessage}</Text>
       <TouchableOpacity
         disabled={!username}
-        onPress={() => handleSubmitUsername(userId, username, setErrorMessage)}
+        onPress={() =>
+          handleSubmitUsername(
+            userId,
+            username,
+            email,
+            password,
+            setErrorMessage,
+          )
+        }
         style={styles.button}
       >
         <Text style={username ? styles.buttonText : styles.buttonDisabled}>
@@ -41,6 +48,8 @@ export default function ChooseUsername() {
 const handleSubmitUsername = async (
   userId: string | string[],
   username: string,
+  email: string | string[],
+  password: string | string[],
   setErrorMessage: (message: string) => void,
 ) => {
   try {
@@ -49,19 +58,13 @@ const handleSubmitUsername = async (
       return;
     }
 
-    const { error } = await supabase.from("profiles").upsert([
-      {
-        id: userId,
-        updated_at: new Date(),
-        username: username,
-      },
-    ]);
-    if (error) {
-      throw error;
-    } else {
-      router.push("/account/choose-full-name");
-      router.setParams({ userId: userId });
-    }
+    router.push("/account/choose-full-name");
+    router.setParams({
+      userId: userId,
+      username: username,
+      email: email,
+      password: password,
+    });
   } catch (error) {
     const typedError = error as { code: number };
     setErrorMessage(ERROR_MESSAGES[typedError.code] || "Error saving");
