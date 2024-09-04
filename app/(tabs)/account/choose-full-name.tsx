@@ -8,7 +8,7 @@ import { ERROR_MESSAGES } from "../../../utils/ErrorMessages";
 
 export default function ChooseFullName() {
   const styles = getStyles(useTheme());
-  const { userId } = useLocalSearchParams();
+  const { userId, username, email, password } = useLocalSearchParams();
 
   const [fullName, setFullName] = useState("");
   const [errorMessage, setErrorMessage] = useState(" ");
@@ -27,7 +27,16 @@ export default function ChooseFullName() {
       <Text style={styles.errorText}>{errorMessage}</Text>
       <TouchableOpacity
         disabled={!fullName}
-        onPress={() => handleSubmitFullName(userId, fullName, setErrorMessage)}
+        onPress={() =>
+          handleSubmitFullName(
+            userId,
+            username,
+            fullName,
+            email,
+            password,
+            setErrorMessage,
+          )
+        }
         style={styles.button}
       >
         <Text style={fullName ? styles.buttonText : styles.buttonDisabled}>
@@ -40,7 +49,10 @@ export default function ChooseFullName() {
 
 const handleSubmitFullName = async (
   userId: string | string[],
+  username: string | string[],
   fullName: string,
+  email: string | string[],
+  password: string | string[],
   setErrorMessage: (message: string) => void,
 ) => {
   try {
@@ -49,13 +61,22 @@ const handleSubmitFullName = async (
       return;
     }
 
+    const {
+      data: { session },
+    } = await supabase.auth.signUp({
+      email: email as string,
+      password: password as string,
+    });
+
     const { error } = await supabase.from("profiles").upsert([
       {
-        id: userId,
+        id: session?.user.id,
         updated_at: new Date(),
+        username: username,
         full_name: fullName,
       },
     ]);
+
     if (error) {
       throw error;
     } else {

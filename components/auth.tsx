@@ -32,24 +32,18 @@ export default function Auth() {
   async function signUpWithEmail() {
     setLoading(true);
 
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-    });
+    // Create a username
+    const { data, error } = await supabase.auth.getSession();
 
     if (error) {
       Alert.alert(error.message);
     } else {
-      await supabase
-        .from("profiles")
-        .upsert({ id: session?.user.id, email: email });
-
-      // Create a username
       router.replace("/account/choose-username");
-      router.setParams({ userId: session?.user.id });
+      router.setParams({
+        userId: data.session?.user.id,
+        email: email,
+        password: password,
+      });
     }
 
     setLoading(false);
