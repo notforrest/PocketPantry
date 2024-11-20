@@ -51,7 +51,6 @@ export default function Auth() {
       Alert.alert(error.message);
     } else if (password.length < 6) {
       setShowPasswordError(true);
-    } else if (email.length > 0) {
     } else {
       router.replace({
         pathname: "/account/choose-username",
