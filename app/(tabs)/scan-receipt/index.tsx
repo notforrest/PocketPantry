@@ -59,8 +59,10 @@ export default function Scanner() {
   // Routes to next step if an image is selected
   useEffect(() => {
     if (selectedImage) {
-      router.push("/scan-receipt/parser");
-      router.setParams({ selectedImage });
+      router.push({
+        pathname: "/scan-receipt/parser",
+        params: { selectedImage },
+      });
     }
   }, [selectedImage]);
 

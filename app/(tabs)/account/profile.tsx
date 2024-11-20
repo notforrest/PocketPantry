@@ -52,12 +52,14 @@ export default function HomePage() {
     <View style={styles.page}>
       <TouchableOpacity
         onPress={() => {
-          router.push("./edit-profile");
-          router.setParams({
-            fetchedId: currentUserId,
-            fetchedUser: username,
-            fetchedName: name,
-            fetchedEmail: email,
+          router.push({
+            pathname: "./edit-profile",
+            params: {
+              fetchedId: currentUserId,
+              fetchedUser: username,
+              fetchedName: name,
+              fetchedEmail: email,
+            },
           });
         }}
         style={styles.editProfileButton}
