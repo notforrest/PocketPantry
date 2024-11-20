@@ -51,10 +51,12 @@ export default function HomePage() {
         setIsUsernameFocused(false);
         setNameFocused(false);
         setEmailFocused(false);
-        router.back();
-        router.setParams({
-          newUser: username,
-          newName: name,
+        router.replace({
+          pathname: "/account/profile",
+          params: {
+            newUser: username,
+            newName: name,
+          },
         });
       }
     } catch (error) {

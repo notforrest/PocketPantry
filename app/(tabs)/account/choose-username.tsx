@@ -58,12 +58,14 @@ const handleSubmitUsername = async (
       return;
     }
 
-    router.push("/account/choose-full-name");
-    router.setParams({
-      userId: userId,
-      username: username,
-      email: email,
-      password: password,
+    router.push({
+      pathname: "/account/choose-full-name",
+      params: {
+        userId: userId,
+        username: username,
+        email: email,
+        password: password,
+      },
     });
   } catch (error) {
     const typedError = error as { code: number };

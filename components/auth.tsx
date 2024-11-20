@@ -38,11 +38,13 @@ export default function Auth() {
     if (error) {
       Alert.alert(error.message);
     } else {
-      router.replace("/account/choose-username");
-      router.setParams({
-        userId: data.session?.user.id,
-        email: email,
-        password: password,
+      router.replace({
+        pathname: "/account/choose-username",
+        params: {
+          userId: data.session?.user.id,
+          email: email,
+          password: password,
+        },
       });
     }
 
