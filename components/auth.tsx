@@ -149,6 +149,6 @@ const getStyles = (theme: Theme) =>
       textAlign: "center",
       color: theme.error,
       fontSize: 14,
-      marginBottom: "10%",
+      marginBottom: "5%",
     },
   });
