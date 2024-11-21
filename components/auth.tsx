@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   StyleSheet,
@@ -10,13 +10,25 @@ import {
 import { supabase } from "../utils/supabase";
 import { SymbolView } from "expo-symbols";
 import { Theme, useTheme } from "../utils/ThemeProvider";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 
 export default function Auth() {
   const styles = getStyles(useTheme());
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPasswordError, setShowPasswordError] = useState(false);
+  const navigation = useNavigation();
+
+  // Reset states on load
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setShowPasswordError(false);
+      setEmail("");
+      setPassword("");
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   async function signInWithEmail() {
     setLoading(true);
@@ -37,6 +49,8 @@ export default function Auth() {
 
     if (error) {
       Alert.alert(error.message);
+    } else if (password.length < 6) {
+      setShowPasswordError(true);
     } else {
       router.replace({
         pathname: "/account/choose-username",
@@ -84,6 +98,12 @@ export default function Auth() {
           value={password}
         />
       </View>
+      {showPasswordError && (
+        <Text style={styles.errorMessage}>
+          Invalid password{"\n"}
+          (Must be 6 or more characters)
+        </Text>
+      )}
       <View style={styles.buttons}>
         <TouchableOpacity disabled={loading} onPress={() => signInWithEmail()}>
           <Text>Login</Text>
@@ -124,5 +144,11 @@ const getStyles = (theme: Theme) =>
       marginBottom: 25,
       padding: 10,
       minWidth: "80%",
+    },
+    errorMessage: {
+      textAlign: "center",
+      color: theme.error,
+      fontSize: 14,
+      marginBottom: "5%",
     },
   });
