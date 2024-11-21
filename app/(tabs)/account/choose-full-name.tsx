@@ -82,7 +82,10 @@ const handleSubmitFullName = async (
     } else {
       router.push({
         pathname: "/account/profile",
-        params: { userId: userId },
+        params: {
+          newUser: username,
+          newName: fullName,
+        },
       });
     }
   } catch (error) {
